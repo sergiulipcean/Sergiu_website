@@ -1,0 +1,37 @@
+project:
+  type: website
+
+website:
+  title: "Sergiu Lipcean"
+  navbar:
+    left:
+      - href: index.qmd
+        text: About
+      - curriculum_vitae.qmd
+      - publications.qmd
+      - href: blogposts/index.qmd
+    
+    right: 
+      - icon: envelope
+        aria-label: email
+        href: mailto:sergiu.lipcean@uib.no
+      - text: "{{< ai orcid >}}"
+        href: https://orcid.org/0000-0002-8944-6505
+      - icon: linkedin
+        href: https://www.linkedin.com/in/sergiulipcean/
+      - icon: twitter
+        href: https://twitter.com/sergiulipcean
+
+  page-footer: 
+    background: "#2C3E50"
+    left: Copyright 2024, Sergiu Lipcean
+    right: This website is built with {{< fa heart title="a heart" >}}, [{{< fa brands github title="GitHub octocat logo" >}}](https://github.com/samanthacsik/samanthacsik.github.io){target=_blank}, [{{< fa brands r-project title="R Project" >}}](https://www.r-project.org/about.html){target=_blank} and [Quarto](https://quarto.org/){target=_blank}
+
+format:
+  html:
+    theme: flatly
+    css: styles.css
+    toc: true
+
+editor: visual
+logo: "sergiu_photo2.jpg"

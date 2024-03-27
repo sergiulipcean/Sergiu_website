@@ -1,0 +1,29 @@
+---
+title: "About"
+about:
+  template: broadside
+  image: sergiu_photo3.jpg
+  links:
+    - icon: envelope
+      aria-label: email
+      text: Email
+      href: mailto:sergiu.lipcean@uib.no
+      target: _blank
+    - text: "{{< ai orcid >}}"
+      href: https://orcid.org/0000-0002-8944-6505
+      target: _blank  
+    - icon: linkedin
+      text: Linkedin
+      href: https://www.linkedin.com/in/sergiulipcean/
+      target: _blank
+    - icon: twitter
+      text: Twitter
+      href: https://twitter.com/sergiulipcean
+      target: _blank
+---
+
+::: {#about-block}
+:::
+
+|       Hello everyone, and welcome to my webpage. I am a political scientist whose academic interests revolve around the relationship between money and politics with a particular focus on post-Soviet polities. My research focuses on both the effects of party and campaign finance regulations on political corruption and party competition as well as forces shaping the content and restrictiveness of political financing regimes.
+|       I am currently a Research Fellow in the CONSULTATIONEFFECTS project at the Department of Comparative Politics, University of Bergen. Prior to this position, I was a Marie Skłodowska-Curie Postdoctoral Researcher at the School of Law and Government, Dublin City University. During the Marie Curie Fellowship, I investigated the effect of direct public funding of political parties on political corruption within the framework of the Horizon2020 project "Does Public Funding Matter? The Effect of State Subsidies to Political Parties on Political Corruption".

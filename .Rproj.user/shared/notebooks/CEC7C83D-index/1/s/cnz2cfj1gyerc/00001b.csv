@@ -1,0 +1,9 @@
+"0","pf_data <- pf_data %>%
+  select(Country, Year, region_new, pubfinindexstock1log, v2x_polyarchyV8, v2x_polyarchyV8, Fariss_e_miurbani, v2x_elecregV8, pubfinindexstock1log_l5, pubfin_add_l5, pubfin_add_short_l5, pfsi_recoded_l5,  
+v2x_polyarchyV8_l5, Fariss_Maddison_gdppc_1990_ln_l5, Fariss_e_miurbani_l5
+Fariss_gdp_growth_l5, v2x_elecregV8_l5 )
+"
+"2","Error: unexpected symbol in:
+""v2x_polyarchyV8_l5, Fariss_Maddison_gdppc_1990_ln_l5, Fariss_e_miurbani_l5
+Fariss_gdp_growth_l5""
+"

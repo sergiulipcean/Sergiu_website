@@ -1,0 +1,29 @@
+---
+title: "Blogposts"
+author: ""
+listing: 
+  - id: posts_2022
+    contents: "2022/**/index.qmd"
+    sort: "date desc"
+    categories: true
+  - id: posts_2021
+    contents: "2021/**/index.qmd"
+    sort: "date desc"
+    categories: true
+type: default # or `default` or `table`; each type has its own set of yaml options to include
+page-layout: full
+toc-title: Year
+toc-location: right
+code-tools: false
+comments: false
+---
+
+## 2022
+
+::: {#posts_2022}
+:::
+
+## 2021
+
+::: {#posts_2021}
+:::

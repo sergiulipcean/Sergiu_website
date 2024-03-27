@@ -1,0 +1,46 @@
+"0",""
+"0","models_by_region <- list("
+"0"," m1 <- feols(v2x_corrV8 ~ lag(pubfinindexstock1log, 5) + lag(v2x_polyarchyV8, 5) + lag(I(v2x_polyarchyV8^2), 5) + lag(Fariss_Maddison_gdppc_1990_ln, 5) + lag(Fariss_e_miurbani, 5) + lag(Fariss_gdp_growth, 5) + lag(v2x_elecregV8, 5) | country + year, data = pf_data_panel, vcov = ""twoway""),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""Latin America"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""The Caribbean"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""Western Europe and North America"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""Sub-Saharan Africa"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""East Asia"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""South-East Asia"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""Eastern Europe and Central Asia (post-Communist)"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""MENA (Middle East & North Africa)"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""South Asia"")),"
+"0"," update(m1, .~., data = subset(pf_data_panel, e_regionpol == ""The Pacific"")))"
+"2","NOTE: 8,043 observations removed because of NA values (LHS: 1,001, RHS: 7,976).
+"
+"2","NOTE: 247 observations removed because of NA values (RHS: 247).
+"
+"2","NOTE: 244 observations removed because of NA values (RHS: 244).
+"
+"2","NOTE: 248 observations removed because of NA values (LHS: 10, RHS: 248).
+"
+"2","NOTE: 3,031 observations removed because of NA values (LHS: 80, RHS: 3,031).
+"
+"2","NOTE: 414 observations removed because of NA values (RHS: 414).
+"
+"2","NOTE: 714 observations removed because of NA values (LHS: 143, RHS: 686).
+"
+"2","NOTE: 921 observations removed because of NA values (LHS: 444, RHS: 921).
+"
+"2","NOTE: 1,581 observations removed because of NA values (LHS: 324, RHS: 1,542).
+"
+"2","NOTE: 362 observations removed because of NA values (RHS: 362).
+"
+"2","NOTE: 281 observations removed because of NA values (RHS: 281).
+"
+"0","names(models_by_region) <- c(""Entire World"" ,""Latin America"", ""The Caribbean"", ""Western Europe and North America"", ""Sub-Saharan Africa"", ""East Asia"", ""South-East Asia"", ""Eastern Europe and Central Asia (post-Communist)"", ""MENA (Middle East & North Africa)"", ""South Asia"", ""The Pacific"")"
+"0",""
+"0","models_by_region_df <- models_by_region %>%"
+"0","  map(., tidy) %>%"
+"0","  bind_rows(.id = ""id"") %>%"
+"0","  filter(term == ""lag(pubfinindexstock1log, 5)"") %>%"
+"0","  mutate(main_estim = -0.02,"
+"0","         conf_low_95 = estimate - 1.960*std.error,"
+"0","         conf_high_95 = estimate + 1.960*std.error,"
+"0","         conf_low_90 = estimate - 1.645*std.error,"
+"0","         conf_high_90 = estimate + 1.645*std.error)"

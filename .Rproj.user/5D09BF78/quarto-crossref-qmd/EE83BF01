@@ -1,0 +1,25 @@
+{
+    "entries": [
+        {
+            "file": "blogposts/2021-09-07-data-paper-1/index.qmd",
+            "type": "fig",
+            "id": "line-plot",
+            "suffix": "",
+            "title": "Cross-national and within-country change in public funding between 1990-2020"
+        },
+        {
+            "file": "blogposts/2021-09-07-data-paper-1/index.qmd",
+            "type": "fig",
+            "id": "boxplot",
+            "suffix": "",
+            "title": "Variation in the DPF level across post-communist regimes by the method and timeframe 1990-2020"
+        },
+        {
+            "file": "blogposts/2021-09-07-data-paper-1/index.qmd",
+            "type": "fig",
+            "id": "stat-elect",
+            "suffix": "",
+            "title": "Relationship between the DPF level for party statutory and election financing in election years 1990-2020"
+        }
+    ]
+}

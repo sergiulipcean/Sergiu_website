@@ -1,0 +1,165 @@
+---
+title: "Direct public funding of political parties: between proxy measures and hard data (1)"
+description: "In this blogpost I analyse the development of public funding regimes in postcommunist polities"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2021-09-07"
+categories: [public funding of parties, hard data, post-communist regimes] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body {line-height: 2em;
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  }
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(scales) 
+library(ggthemes) 
+library(ggrepel) 
+library(ggpubr) 
+library(svglite) 
+library(cowplot) 
+library(ggsci)
+```
+
+```{r}
+
+### Import the dataset from the working directory 
+dpf_dataset <- read_csv("dpf_dataset.csv")
+```
+
+```{r}
+
+### Custom theme used in some figures
+custom_theme <- theme_few(base_size = 12, base_family = "calibri") +
+  theme(panel.border = element_rect(color = "gray60"),
+        panel.grid.major = element_line(color = "grey90", size= 0.1))
+```
+
+|       This overview represents a brief and somewhat technical discussion of my article published in [Party Politics](https://journals.sagepub.com/doi/10.1177/13540688211037302) concerning the validity and reliability of various proxy measures of political financing regulations (PFR) and direct public funding (DPF) of political parties [@lipcean2021a]. Scholars commonly employ such proxies to assess their impact on political competition, party system stability, emergence and success of new parties, or political corruption. However, one legitimate concern relates to the suitability of these measures to investigate and gauge the effect of party and campaign funding rules on the phenomena and processes mentioned above. Another justified concern touches on the extent to which these proxies reflect the content of PFR.
+|       Considering that the money-politics relationship in contemporary democracies became a vividly debated topic, these concerns are not trivial. Therefore, when researchers develop and use such measures and make policy recommendations on the direction of political finance reforms based on their findings, it is paramount that they reflect the lay of the land of PFR. Moreover, the performance of such proxies in capturing the nature of PFR is particularly relevant since, in most cases, political finance reforms are designed to level the playing field among electoral competitors, minimise the risk of corruption or undue influence on policy-making via party and campaign contributions. Hence, the way how researchers arrive at conclusions regarding the best tools to address the democratic malaise stemming from the disproportionate influence of vested interests on the decision-making process is crucial for the validity of their findings and recommendations.
+|       In a nutshell, I argue that when it comes to large-N cross-national studies assessing the effect of PFR/DPF on political competition or corruption, unfortunately, scholars mostly resort to proxy measures that do not capture the reality and complexity of PFR accurately. Thus, such measures are not as good as they could be, given the actual content of PFR. This limitation is determined by the overwhelming reliance on what I call regulatory scope. By contrast, I argue that besides regulatory scope, one also needs to look at regulatory intensity or depth.
+|       To understand the difference between the two, I provide a simple example, which will illustrate my point. For instance, when someone analyses the impact of donations or public funding of political parties on corruption or the impact of campaign spending limits on the electoral playing field through the lenses of regulatory scope, she will only consider whether there are (or not) donation and spending limits or whether the state provides (or not) public funds to parties or candidates. Conversely, the focus on regulatory intensity goes further. It is concerned with how much a donor can contribute, a party or candidate can spend, or public funds are granted to political parties to alleviate their fundraising burden. Although the advantages of regulatory intensity against the regulatory scope are self-evident, the former is rarely used in large-N cross-national research on party funding.
+|       Below, I provide an illustration based on [my dataset on direct public funding](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/TNHZML) of political parties covering 27 post-communist regimes over three decades of transition 1990-2020. Hence, I will go through a few indicators to illustrate that regulatory scope is insufficient to understand how permissive a PFR is in limiting the manoeuvring room of political parties and candidates to amass and spend money for their regular or campaign activities. Most charts are adapted based on the article's figures.
+|       Before that, however, I will illustrate that post-communist polities used various methods to determine the level of state subsidies. The choice of a given method might affect the predictability of institutional settings within which political competition occurs. Likewise, it might affect the discretion of political office holders to manipulate the rules in their favour in terms of amount, access and distribution of state funding. More stable and predictable rules on public funding create more equal conditions for electoral competition. By contrast, the lack of or vague regulation enables incumbents to manipulate the allocation mechanism more easily to achieve their electoral goals. Hence, based on the method of determining the level of direct state support to parties, post-communist polities can be clustered into three generic categories based on:
+
+1.  The DPF level is fixed by electoral or party law, which means that the law indicates explicitly how much of taxpayers money flow into party pockets and how it is distributed based on electoral results reflected by the vote or seat share. I label this method as Law-fixed.
+2.  The DPF level is foreseen by electoral or party law, but unlike the previous case, the law ties the DPF level to a flexible indicator such as the wage level, budgetary revenues, expenses, or GDP. I label this method as Law-dynamic.
+3.  The DPF level is set based on ad-hoc decisions yearly, usually through the budgetary process. Finally, I label it as an Ad-hoc decision
+
+|       @fig-boxplot illustrates the DPF level by method and activity type. The boxplot width shows the number of observations, which means that in most cases, post-communist regimes opted to set the DPF level based on a dynamic economic indicator. Likewise, this method seems to be associated with the most generous funding, although for the statutory party financing, those countries that employed an ad-hoc method provided, alike, quite generous state funding to parties.
+
+```{r}
+### Figure 1 - The level of DPF across post-communist regimes by the method setting the amount of and funding type for DPFRV and DPFV 1990-2020
+
+figure_1_A <- dpf_dataset %>%
+  drop_na(method_amount_st) %>%
+  ggplot(aes(x = method_amount_st, y = dpfv_stat_usd)) +
+  geom_boxplot(aes(fill = method_amount_st), varwidth = T,  notch = T, outlier.shape = 1) +
+  scale_fill_brewer(palette = "Set1") +
+  custom_theme +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 11, color = "grey20"),
+        plot.title = element_text(size = 12)) +
+  labs(title = "A: DPF level by method for statutory party financing", x = "", y = "USD per vote")
+
+### Figure 1 - Right-hand panel: Distribution of DPF by method for election activities
+
+df <- dpf_dataset %>%
+  select(country_name, method_amount_el, dpfv_elect_usd) %>%
+  drop_na(method_amount_el)
+
+figure_1_B <- dpf_dataset %>%
+  drop_na(method_amount_el) %>%
+  ggplot(aes(x = method_amount_el, y = dpfv_elect_usd)) +
+  geom_boxplot(aes(fill = method_amount_el), varwidth = T,  notch = T, outlier.shape = 1) +
+  scale_y_continuous(limits = c(0, 15), breaks = seq(0,15, 5)) +
+  scale_fill_brewer(palette = "Set1") +
+  custom_theme +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 11, color = "grey20"),
+        plot.title = element_text(size = 12)) +
+  labs(title = "B: DPF level by method for election  financing", x = "", y = "")
+```
+
+```{r}
+#| label: fig-boxplot
+#| fig-cap: "Variation in the DPF level across post-communist regimes by the method and timeframe 1990-2020"
+#| fig-height: 4
+#| fig-width: 8
+### Combine the left-hand and the right-hand panels of Figure 1
+plot_grid(figure_1_A, figure_1_B)
+```
+
+|       Another shortcoming of regulatory scope is that it cannot account for the variation in DPF when the state provides subsidies for party statutory and election activities. Generally speaking, there are three scenarios in this respect: the state grants subsidies, either for party routine operations or electioneering activities, or both. Yet, the amount of budgetary resources allotted for each type might differ substantially. For instance, the government could provide regular and election subsidies, albeit the total support might still be minimal. Conversely, the aggregate funding might be very generous even though only one subsidy type is granted.
+|       @fig-stat-elect illustrates well this situation. It shows the relationship between the subsidy level for party statutory and election activities. As one may notice, all scenarios are present in different combinations. In some cases, like Montenegro and the Czech Republic, both kinds of subsidies are generous. In others, such as Estonia, Bulgaria or Slovenia, statutory funding has precedence over election financing. By contrast, election funding has priority over regular financing in Slovakia and, more recently, in Hungary.
+
+```{r}
+#| label: fig-stat-elect
+#| fig-cap: "Relationship between the DPF level for party statutory and election financing in election years 1990-2020"
+#| fig-height: 4
+#| fig-width: 8
+
+dpf_dataset %>%
+  ggplot(aes(x = dpfv_stat_usd, 
+             y = dpfv_elect_usd, 
+             shape = country_id,
+             color = country_id)) +
+  geom_point(size = 2) +
+  #geom_jitter(size = 2, height = 0.1, width = 0.1) +
+  scale_shape_manual("", values = c(0:25, 35)) +
+  scale_color_igv(name = "", palette = "default" ) +
+  scale_x_continuous(n.breaks = 7, trans=pseudo_log_trans(base = 10), limits = c(0,12)) +
+  scale_y_continuous(n.breaks = 7, trans=pseudo_log_trans(base = 10), limits = c(0,9)) +
+  custom_theme +
+  theme(panel.grid.minor = element_blank()) +
+  labs(x = "DPF per vote for statutory party financing / USD", y = "DPF per vote for electoral financing / USD")
+```
+
+|       Besides the failure to capture these differences, any proxy measure reflecting only the regulatory scope will also fail to account for within-country variation in public funding. Hence, a subsidy increase or decrease over time will remain unnoticed by a dichotomous indicator (0 -- absence of subsidies, 1 -- presence of subsidies) or a composite measure including public funding. For instance, the changes in the level of state support might affect the incentive structure of political parties or candidates to engage in corruption. To understand the risks of relying on the regulatory scope alone, @fig-line-plot presents the public funding evolution and change over time from the early '90 until 2020. Once again, data reveal a tremendous cross-national and within-country variation.
+
+```{r}
+#| label: fig-line-plot
+#| fig-cap: "Cross-national and within-country change in public funding between 1990-2020"
+#| fig-height: 8
+#| fig-width: 8
+
+dpf_dataset %>%
+  group_by(country_name) %>%
+  filter(country_id != "KGZ") %>%
+  mutate(dpf_country = sum(dpfv_total, na.rm = TRUE)) %>%
+  ggplot(aes(x = year, y = dpfv_total)) +
+  geom_line(color = "lightsteelblue4") +
+  scale_y_continuous(labels = number_format(accuracy = 0.1)) +
+  facet_wrap(~fct_rev(fct_reorder(country_name, dpf_country)), ncol = 4, scales = "free_y") +  theme_minimal(base_size = 11, base_family = "calibri")+
+  theme(panel.grid.minor = element_blank(), 
+        strip.text = element_text(size = 12),
+        panel.spacing.x = unit(0,"lines"),
+        panel.spacing.y = unit(0.05,"lines"))+ 
+  labs(x = "", y = "USD")
+
+```
+
+|       The purpose of this brief sketch was to warn about the risks entailed by the reliance on various proxies used in comparative research on party finance. As data shows, such proxies are inaccurate and biased in reflecting the actual amount of budgetary subventions provided by the state to political parties, which also applies to other dimensions of political financing such as donation and spending limits. In the next part I will show how alternative proxies such as expert evaluations cannot replace objective indicators.
+
+::: {#references}
+:::

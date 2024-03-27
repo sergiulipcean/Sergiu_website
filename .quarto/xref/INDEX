@@ -1,0 +1,53 @@
+{
+  "about.qmd": {
+    "about.html": "595f7a87"
+  },
+  "index.qmd": {
+    "index.html": "945c8f10"
+  },
+  "publications.qmd": {
+    "publications.html": "d9b31323"
+  },
+  "curriculum_vitae.qmd": {
+    "curriculum_vitae.html": "49b853d6"
+  },
+  "bposts.qmd": {
+    "bposts.html": "5ea1ca00"
+  },
+  "blogposts/2021-09-07-data-paper-1/index.qmd": {
+    "index.html": "3b4b37b2"
+  },
+  "blogposts/2021-09-16-data-paper-2/index.qmd": {
+    "index.html": "891ccace"
+  },
+  "blogposts/2021-11-23-rich-buy-elections/index.qmd": {
+    "index.html": "a1415512"
+  },
+  "blogposts/2022-03-17-replication-fcb/index.qmd": {
+    "index.html": "125f216f"
+  },
+  "experim.qmd": {
+    "experim.html": "cdc57429"
+  },
+  "blogposts/2021/2021-09-07-data-paper-1/index.qmd": {
+    "index.html": "eba205f5"
+  },
+  "blogposts/2021/2021-09-16-data-paper-2/index.qmd": {
+    "index.html": "25948369"
+  },
+  "blogposts/2021/2021-11-23-rich-buy-elections/index.qmd": {
+    "index.html": "4ba6fd12"
+  },
+  "blogposts/2022/2022-03-17-replication-fcb/index.qmd": {
+    "index.html": "7c9ecdaf"
+  },
+  "blogposts/index.qmd": {
+    "index.html": "11722667"
+  },
+  "bpost.qmd": {
+    "bpost.html": "20b9b3b8"
+  },
+  "blogposts/2022/2022-04-27-replication-hgb/index.qmd": {
+    "index.html": "40a1afcb"
+  }
+}

@@ -1,0 +1,8 @@
+/* css styles */
+
+.footer {
+  background-color: #2C3E50; /* Dark blue color of the Flatly theme's navbar */
+  color: #ffffff; /* White text color */
+  padding: 20px 0;
+  text-align: center;
+}

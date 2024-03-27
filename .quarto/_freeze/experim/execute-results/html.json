@@ -1,0 +1,16 @@
+{
+  "hash": "bdff78383ef8b904b1411aacfd5d1feb",
+  "result": {
+    "markdown": "---\ntitle: \"Untitled\"\n---\n\n\nfigure \\@ref(fig:my-plot) shows\n\n\n::: {.cell}\n\n```{.r .cell-code}\nwith(mtcars, plot(mpg, wt))\n```\n\n::: {.cell-output-display}\n![My plot](experim_files/figure-html/my-plot-1.png){width=480}\n:::\n:::\n",
+    "supporting": [
+      "experim_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
