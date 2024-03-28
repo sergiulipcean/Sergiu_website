@@ -1,0 +1,84 @@
+---
+title: "Relationship between public funding of elections, disclosure of campaign donations and electoral integrity by democracy level"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2023-02-11"
+categories: [public funding of parties, transparency, donations, electoral integrity, democracy, plotly] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 2em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10)
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(plotly)
+library(haven)
+#library(vdemdata)
+library(rgl)
+library(webshot)
+```
+
+```{r}
+vdem2 <- read_csv("vdem2.csv") %>%
+  drop_na(e_fh_status)
+```
+
+```{r}
+m <- list(l = 0,  r = 0, b = 0, t = 0, pad = 4)
+#my_colour <- colorRamp(c("red", "royalblue4"))
+#my_colour2 <- viridisLite::viridis(20)
+#my_colour3 <- c("navy", "orange", "steelblue3")
+
+vdem2 %>%
+  plot_ly(x = ~v2elpubfin, y = ~v2xel_frefair, z = ~v2eldonate, size = ~v2x_libdem, 
+          marker = list(symbol = 'circle-open', opacity = 0.3, sizemode = 'diameter'), sizes = c(3, 30),
+          color = ~v2x_libdem,
+          colors = "viridis",
+          #colors = hcl.colors(20, "Blues"),
+          #colors = c( "red4", "yellow2", "darkgreen"),
+          hoverinfo = 'text',
+          text = ~paste("Country: ", country_text_id, "<br>",
+                        "Public funding: ", v2elpubfin, "<br>",
+                        "Disclosure of donations: ", v2eldonate, "<br>", "Free&fair elections: ", v2xel_frefair)) %>%
+            colorbar(title = "Liberal<br>Democracy<br>V-DEM",
+                     tickfont=list(size=14), 
+                     y = 0.8) %>%
+      # Axes labels and title:
+  layout(scene = list(xaxis = list(title = "Public funding of elections"), 
+                      yaxis = list(title = "Free & fair elections"), 
+                      zaxis = list(title = "Disclosure of campaign donations")),
+         margin = m)
+
+```
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1em; 
+  font-size: 12pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+
+<br>
+Note: The plot depicts the relationship between the public funding of elections (higher values - more public funding), disclosure of campaign donations (higher values - more comprehensive disclosure), on the one hand, and electoral integrity (higher values - freer and fairer elections), on the other hand. Additionally, it breaks down this relationship by the level of democratic development (point colour and size). More generous public funding of elections and more more demanding disclosure requirements for campaign donations are associated with freer and fairer electoral competition. Likewise, more democratic regimes provide more state support to political parties and require more transparency for campaign donations. Data reflects expert opinions. Use the mouse to rotate/spin, zoom in, and hover over the plot for more details. Data source: [@coppedge2022; @vdemdata]
+
+::: {#references}
+:::

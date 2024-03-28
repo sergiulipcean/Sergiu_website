@@ -1,0 +1,148 @@
+---
+title: "Relationship between the level of direct public funding of political parties, democracy and state capture by regime status"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2023-05-19"
+categories: [public funding of parties, state capture, democracy, plotly] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 2em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10) 
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(mgcv)
+library(haven)
+library(rgl)
+library(plotly)
+library(webshot)
+```
+
+```{r}
+
+beeps <- read_dta("dpf_beeps_gcb.dta")
+
+engagement_reg <- beeps %>%
+  select(country, year, dpfv_total, dpfv_total_stock, dpfv_total_stockpr, private_agreg, high_frequency_payment_bps, low_frequency_payment_bps, press_freedom_rev, v2x_libdem, democracy_scaled, status_fh, polity2, judicial_scaled, gdppc_ppp_2017, women_perc_wb, women_percent_ipu, prespow1, prespow2, contains("gov_"), contains("gini"), contains("ethn_fr"), eu_application, govern_type, idea_esf) %>%
+  rowwise() %>%
+  mutate(year2 = ifelse(!is.na(high_frequency_payment_bps), year, NA),
+         govern_type = ifelse(!is.na(high_frequency_payment_bps), govern_type, NA),
+         govern_type2 = case_when(govern_type == "Presidential" ~ 1, govern_type == "Semi-presidential" ~ 2, govern_type == "Parliamentary" ~ 3),
+         status_fh = case_when(status_fh == "NF" ~ 1, status_fh == "PF" ~ 2, status_fh == "F" ~ 3),
+         elect_syst = ifelse(!is.na(high_frequency_payment_bps), idea_esf, NA)) %>%
+  group_by(country) %>%
+  fill(c(elect_syst, year2), .direction = "up") %>%
+  select(-c(idea_esf, govern_type)) %>%
+  group_by(country, year2) %>%
+  summarise(across(.cols =(dpfv_total:elect_syst), ~ mean(.x, na.rm = TRUE))) %>%
+  mutate(across(.cols =(dpfv_total:elect_syst), ~ round(.x, 3))) %>%
+  mutate(across(.cols=(dpfv_total:elect_syst), ~ ifelse(is.nan(.x), NA, .x))) %>%
+  mutate(status_fh = round(status_fh),
+         high_frequency_payment_log = log(high_frequency_payment_bps),
+         low_frequency_payment_log = log(low_frequency_payment_bps),
+         high_frequency_payment_sqrt = sqrt(high_frequency_payment_bps),
+         low_frequency_payment_sqrt = sqrt(low_frequency_payment_bps),
+         high_frequency_payment_cube = high_frequency_payment_bps^(1/3),
+         high_frequency_payment_boxcox = car::bcnPower(high_frequency_payment_bps, lambda = 0.4642513, gamma = 0.1),
+         high_frequency_payment_yj = car::yjPower(high_frequency_payment_bps, lambda = 0.4122007)) %>%
+  #mutate(across(.cols=(high_frequency_payment_log:low_frequency_payment_sqrt), ~ ifelse(is.infinite(.x), 0, .x))) %>% 
+  arrange(country, year2) %>%
+  filter(!is.na(year2)) %>%
+  rename("year" = "year2") %>%
+  mutate(year2 = factor(year)) %>%
+  ungroup()
+
+engagement_reg2 <- engagement_reg %>%
+  drop_na(dpfv_total_stockpr, democracy_scaled, high_frequency_payment_sqrt) %>%
+  select(country, year, dpfv_total_stockpr, democracy_scaled, high_frequency_payment_sqrt, status_fh) %>%
+ rename("subsidies" = "dpfv_total_stockpr", "democracy" = "democracy_scaled", "capture" = "high_frequency_payment_sqrt") %>%
+   mutate(status_fh = factor(status_fh, labels = c("Not Free", "Partly Free", "Free")),
+          capture = round(capture,2))
+ 
+```
+
+```{r}
+
+gammod <- gam(capture ~ ti(subsidies, k = 20) + ti(democracy, k = 15), data = engagement_reg2)
+
+#gammod <- gam(capture ~ s(subsidies, k = 10) + s(democracy, k=9), data = engagement_reg2)
+
+# Now expand it to a grid so that persp will work
+steps <- 100
+
+subsidies <- with(engagement_reg2, seq(min(subsidies), max(subsidies), length = steps))
+
+democracy <-  with(engagement_reg2, seq(min(democracy), max(democracy), length = steps))
+
+newdat <- expand.grid(subsidies = subsidies, democracy = democracy)
+
+capture <- matrix(predict(gammod, newdat), steps, steps) %>% t()
+```
+
+```{r}
+m <- list(l = 0,  r = 0, b = 0, t = 0, pad = 4)
+#my_viridis <- viridisLite::viridis(20,option = "mako")
+
+plot_ly(engagement_reg2, x = ~subsidies, y = ~democracy, z = ~capture 
+              ) %>%
+  add_markers(marker = list(size = 5),
+              color = ~status_fh,
+              colors = "viridis",
+              symbol = ~status_fh, 
+              symbols = c("circle", "square", "x"),
+              hoverinfo = "text",
+              text = ~paste("Country: ", country, "<br>",
+                            "Year: ", year, "<br>",
+                            "State funding:", subsidies, "<br>",
+                            "Democracy:", democracy, "<br>",
+                            "State capture: ", capture)) %>% 
+  add_surface(x=subsidies, z=capture, y=democracy, opacity = 0.6) %>%
+  #colorbar(title = "State<br>Capture", y = 0.8) %>%
+  layout(scene = list(xaxis = list(title = "State funding $"), 
+                      yaxis = list(title = "Democracy (V-Dem)"), 
+                      zaxis = list(title = "State capture % firms")),
+         legend = list(title=list(text='Democracy<br>status'), 
+                       font = list(size = 14),
+                       y = 0.4),
+         margin = m) %>%
+  colorbar(title=list(text='State<br>capture'), 
+           tickfont=list(size=14),
+           y = 0.9)
+
+```
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1em; 
+  font-size: 12pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+
+<br>
+Note: The plot depicts the relationship between the actual amount of direct public funding of political parties for statutory and electoral activities (higher values - more public funding) and democracy index (higher values - more democracy), on the one hand, and state capture, defined as percentage of firms engaged in making frequent informal payments to public officials and politicians to affect the content of laws and regulations (higher values - higher percent of firms),[^1] on the other hand. Additionally, it breaks down this relationship by the status of political regime according to Freedom House classification. Overall, data shows that more generous public funding granted to political parties is associated with lower percentage of firms involved in illegal payments. Use the mouse to rotate/spin, zoom in, and hover over the plot for more details. Data sources: [@coppedge2022; @vdemdata; @lipcean2021; @freedomhouse2020; @ebrd2020]
+
+
+[^1]: The precise question in BEEPS asks the following: Thinking now of unofficial payments/gifts that a firm like yours would make in a given year, could you please tell me how often would they make payments/gifts for the following purposes: To influence the content of new legislation, rules, decrees, etc.
+
+::: {#references}
+:::

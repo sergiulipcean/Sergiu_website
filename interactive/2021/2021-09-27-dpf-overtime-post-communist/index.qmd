@@ -1,0 +1,94 @@
+---
+title: "Direct public funding of political parties for statutory and election financing in post-communist space over time"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2021-09-27"
+categories: [public funding of parties, post-communist regimes, plotly] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 2em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 8) 
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(scales) 
+library(plotly)
+library(colorspace)
+library(rgl)
+library(webshot)
+```
+
+```{r}
+dpf_dataset <- read_csv("dpf_dataset.csv")
+```
+
+```{r}
+
+# Plot using plotly
+m <- list(l = 0,  r = 0, b = 0, t = 0, pad = 4)
+
+#m <- list(l = 50, r = 50, b = 100, t = 100, pad = 4)
+my_colours <- colorRamp(c("red", "navy"))
+
+dpf_dataset %>%
+  plot_ly(x = ~year, y = ~dpfv_stat_usd, z = ~dpfv_elect_usd,
+          marker = list(symbol = 'circle', opacity = 0.8, sizemode = 'diameter'), 
+          size = ~dpfv_total, 
+          sizes = c(5, 50),
+          color = ~dpfv_total,
+          #strokes = "dodgerblue4",
+          #colors = my_colours,
+          colors = "viridis",
+          hoverinfo = 'text',
+          text = ~paste("Country: ", country_id, "<br>",
+                        "Year: ", year, "<br>", 
+                        "Total Funding: ", dpfv_total)) %>%
+  add_markers() %>%
+  #hide_colorbar() %>%
+  colorbar(title = "Total<br>Funding",
+           limits = c(0,20),
+           tickprefix = '$',
+           tickfont=list(size=14),
+           y = 0.8) %>%
+    # Axes labels and title:
+  layout(scene = list(
+    zaxis = list(title = "DPF Elections $"),
+    yaxis = list(title = "DPF Statutory $"),
+    xaxis = list(title = "Year"))) %>%
+  layout(margin = m)
+  #layout(legend = list(title = list(text = "<b> Total DPF <b>"))) %>%
+  #add_annotations(text = "Note: The plot illustrates the relationship between direct state subsidies of political parties<br>across post-communist regimes by thesize of total funding during almost three decades<br>from the outset oftransition from communist rule. Use plot menue and hover over the points for details.", x = 0.5, y = -0.15)
+
+```
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1em; 
+  font-size: 12pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+
+<br>
+Note: The plot illustrates the relationship between direct state funding of political parties for statutory and electoral activities across post-communist regimes by the size of total funding between 1990 -- 2020. Use the mouse to rotate/spin the plot and the plot menu for details. Source: [@lipcean2021]
+
+::: {#references}
+:::

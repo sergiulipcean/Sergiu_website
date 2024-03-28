@@ -1,0 +1,38 @@
+---
+title: "Interactive"
+author: ""
+listing:
+  - id: interactive_2023
+    contents: "2023/**/index.qmd"
+    sort: "date desc"
+    categories: true
+  - id: interactive_2022
+    contents: "2022/**/index.qmd"
+    sort: "date desc"
+    categories: true
+  - id: interactive_2021
+    contents: "2021/**/index.qmd"
+    sort: "date desc"
+    categories: true
+type: default # or `default` or `table`; each type has its own set of yaml options to include
+page-layout: full
+toc-title: Year
+toc-location: right
+code-tools: false
+comments: false
+---
+
+## 2023
+
+::: {#interactive_2023}
+:::
+
+## 2022
+
+::: {#interactive_2022}
+:::
+
+## 2021
+
+::: {#interactive_2021}
+:::

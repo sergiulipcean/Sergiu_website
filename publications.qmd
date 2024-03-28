@@ -4,11 +4,11 @@ title: "Publications"
 
 ## Peer-reviewed articles
 
+Lipcean, S. & McMenamin, I. (2024). Rethinking public funding of parties and corruption: Confronting theoretical complexity and challenging measurement. *Governance* *37*(2): 537–559. DOI: <https://doi.org/10.1111/gove.12782>
+
 Bunea, A., Wüest, R. & Lipcean, S. (2024). Mapping the policy space of public stakeholder consultations: Evidence from the European Union. Journal of European Public Policy. DOI: <https://doi.org/10.1080/13501763.2024.2320836>
 
 Bunea, A. & Lipcean, S. (2023). Understanding patterns of stakeholder participation in public commenting on bureaucratic policymaking: Evidence from the European Union. Regulation & Governance. DOI: <https://onlinelibrary.wiley.com/doi/abs/10.1111/rego.12551>
-
-Lipcean, S. & McMenamin, I. (2023). Rethinking public funding of parties and corruption: Confronting theoretical complexity and challenging measurement. Governance. DOI: <https://doi.org/10.1111/gove.12782>
 
 Lipcean, S. (2022). Direct public funding of political parties: Between proxy measures and hard data. Party Politics 28(6): 1041–1057. DOI: <https://doi.org/10.1177/13540688211037302>
 
@@ -16,7 +16,7 @@ Lipcean, S. (2022). Direct public funding of political parties: Between proxy me
 
 Lipcean, S. & Casal Bértoa, F. (Forthcoming 2024). Political Financing and Political Corruption. In L. de Sousa & S. Coroado (eds.), Elgar Encyclopedia of Corruption and Society.
 
-Lipcean, S. & Prohnitchi, E. (Forthcoming 2024). Against The Mainstream? The Impact of Party Regulation in Political Competition in Moldova. In F. Casal Bértoa & L. Tsutskiridze (eds.), Money Rules: Parties, Oligarchs and Funding Regulation in Post-Soviet Countries. Routledge, Taylor & Francis Group.
+Lipcean, S. & Prohnitchi, E. (2024). Against The Mainstream? The Impact of Party Regulation in Political Competition in Moldova. In F. Casal Bértoa & L. Tsutskiridze (eds.), Money Rules: Parties, Oligarchs and Funding Regulation in Post-Soviet Countries. Routledge, Taylor & Francis Group.
 
 Lipcean, S. & Ștefan, L. (2014). Implementing Right to Information: A Case Study of Moldova. In S. E. Trapnell (ed.), Right to Information: Case Studies on Implementation. Washington, DC: World Bank. [\[link\]](https://openknowledge.worldbank.org/entities/publication/64eb01fb-a69f-5832-81a4-30183fe7ec56)
 
@@ -24,7 +24,7 @@ Lipcean, S. & Ștefan, L. (2014). Implementing Right to Information: A Case Stud
 
 Lipcean, S. (2021). Dataset on direct public funding of political parties across post-communist regimes 1990-2020. Harvard Dataverse. DOI: <https://doi.org/10.7910/DVN/TNHZML>
 
-## Policy briefs & papers
+## Policy briefs & reports
 
 Lipcean, S., Casal Bértoa, F. & Goguadze, N. (2022). Post-legislative scrutiny of election campaign finance legislation. London: Westminster Foundation for Democracy. [\[link\]](https://www.wfd.org/what-we-do/resources/post-legislative-scrutiny-election-campaign-finance-legislation)
 

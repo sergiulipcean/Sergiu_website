@@ -14,13 +14,16 @@ zotero: true
 linkcolor: blue
 urlcolor: blue
 bibliography: references.bib
+resources:
+  - "pf_data.csv"
 ---
 
 ```{=html}
 <style type = text/css>
-  body{line-height: 2em; 
+  body{line-height: 1.5em; 
   font-size: 14pt;
-  font-family: Trebuchet MS;}
+  font-family: Trebuchet MS;
+  text-align: justify;}
 </style>
 ```
 
@@ -31,7 +34,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```{r}
 # Download R packages 
 library(tidyverse)
-library(readstata13)
+#library(readstata13)
 library(fixest)
 #library(openxlsx)
 library(broom)
@@ -41,15 +44,8 @@ library(ggeffects)
 ```
 
 ```{r}
-####################################
-#pf_data_h <- readRDS("hummel_data.rds") %>%
-#  rename("Country" = "country_name", "Year" = "year")
-pf_data <- readRDS("pf_data.rds")
-
-#pf_data <- pf_data_h %>%
-#  select(Country, Year, region_new, v2x_corrV8, pubfin_add, pubfinindexstock1log, v2x_polyarchyV8, v2x_polyarchyV8, Fariss_e_miurbani, v2x_elecregV8, pubfinindexstock1log_l5, pubfin_add_l5, pubfin_add_short_l5, pfsi_recoded_l5, v2x_polyarchyV8_l5, Fariss_Maddison_gdppc_1990_ln_l5, Fariss_e_miurbani_l5, Fariss_gdp_growth_l5, v2x_elecregV8_l5 )
-
-#saveRDS(pf_data, "pf_data.rds")
+### Import the dataset
+pf_data <- read_csv("pf_data.csv")
 ```
 
 |       In this blog post, I discuss and replicate @hummel2021. Their article is perhaps the most ambitious effort to estimate the effect of public funding on political corruption in terms of geographical and temporal coverage. The article stands out from other cross-national studies on the relationship between party financing and corruption due to the authors' efforts to construct a Political Finance Subsidy Index (PFSI) covering "175 countries and 115 years, generating 12,380 country-year observations" [@hummel2021, pag., 6], which is truly impressive. However, unlike @casalbértoa2014c, who rely on a public funding measure reflecting somewhat closer the level of funding political parties receive from the state, PFSI represents a much weaker measure. It represents an aggregate measure of five dichotomous (no = 0, yes = 1) indicators.
@@ -93,7 +89,9 @@ pf_data %>%
   
 ```
 
-|       Using different panel data models, @hummel2021 found that higher values of the PFSI reduce corruption perception. Below, I replicate their analysis from the model 3 (full model) of table 3 (pag.14) in their study, which is a two-way fixed-effect (TWFE) model. In addition, I conduct the analysis on different subsets of regionally-split data. This will allow me to see whether the negative effect of corruption holds across different regions. If PFSI has a consistent negative effect on corruption, one would expect it to be more or less similar across different regions. To keep things simple, I present the results for the PFSI only, without other control variables, even though I include them into the estimation. @fig-plot-ame shows significant variation in the regional PFSI coefficients.
+|       Using different panel data models, @hummel2021 found that higher values of the PFSI reduce corruption perception. Below, I replicate their analysis from the model 3 (full model) of table 3 (pag.14) in their study, which is a two-way fixed-effect (TWFE) model. In addition, I conduct the analysis on different subsets of regionally-split data. This will allow me to see whether the negative effect of corruption holds across different regions. If PFSI has a consistent negative effect on corruption, one would expect it to be more or less similar across different regions. To keep things simple, I present the results for the PFSI only, without other control variables, even though I include them into the estimation. @fig-plot-ame shows significant variation in the regional PFSI coefficients.[^1]
+
+[^1]: You can replicate the analysis and figures by using this data [{{< fa file-csv >}}]([pf_data.csv)`pf_data.csv` along with the R code.
 
 ```{r regressions}
 # Model labels 
@@ -112,8 +110,9 @@ model_labels <- c("pubfinindexstock1log_l5" = "PFSI original",
 ```
 
 ```{r twfe-models-regions}
+### Convert to panel data format
 pf_data_panel <- panel(pf_data, ~Country + Year)
-
+### Fit TWFE models
 twfe_by_region_full <- list(
   "Global"  = m1 <- feols(v2x_corrV8 ~ pubfinindexstock1log_l5 + v2x_polyarchyV8_l5 + I(v2x_polyarchyV8_l5^2) + Fariss_Maddison_gdppc_1990_ln_l5 + Fariss_e_miurbani_l5 + Fariss_gdp_growth_l5 + v2x_elecregV8_l5 | Country + Year, data = pf_data_panel, vcov = "twoway"),
   "South-East Asia & the Pacific" = m2 <- update(m1, .~., data = subset(pf_data_panel, region_new == "South-East Asia & the Pacific")),
@@ -125,7 +124,7 @@ twfe_by_region_full <- list(
 ```
 
 ```{r twfe-models-regions-dm}
-
+### Transform to data frame and get 90 confidence intervals
 twfe_by_region_full_df <- twfe_by_region_full %>%
   map(., ~tidy(.x, conf.int = TRUE)) %>%
   bind_rows(.id = "id") %>%

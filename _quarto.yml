@@ -1,5 +1,6 @@
 project:
   type: website
+  output-dir: docs
 
 website:
   title: "Sergiu Lipcean"
@@ -10,6 +11,7 @@ website:
       - curriculum_vitae.qmd
       - publications.qmd
       - href: blogposts/index.qmd
+      - href: interactive/index.qmd
     
     right: 
       - icon: envelope
@@ -25,11 +27,13 @@ website:
   page-footer: 
     background: "#2C3E50"
     left: Copyright 2024, Sergiu Lipcean
-    right: This website is built with {{< fa heart title="a heart" >}}, [{{< fa brands github title="GitHub octocat logo" >}}](https://github.com/samanthacsik/samanthacsik.github.io){target=_blank}, [{{< fa brands r-project title="R Project" >}}](https://www.r-project.org/about.html){target=_blank} and [Quarto](https://quarto.org/){target=_blank}
+    right: This website is built with [{{< fa brands r-project title="R Project" >}}](https://www.r-project.org/about.html){target=_blank} and [Quarto](https://quarto.org/){target=_blank}
 
 format:
   html:
-    theme: flatly
+    theme: 
+      light: flatly
+      dark: darkly
     css: styles.css
     toc: true
 

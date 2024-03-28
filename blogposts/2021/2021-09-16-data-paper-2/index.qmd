@@ -14,6 +14,9 @@ zotero: true
 linkcolor: blue
 urlcolor: blue
 bibliography: references.bib
+resources:
+  - "dpf_dataset.csv"
+  - "dpf_dependence.csv"
 ---
 
 ```{=html}
@@ -21,9 +24,11 @@ bibliography: references.bib
   body {line-height: 1.5em;
   font-size: 14pt;
   font-family: Trebuchet MS;
+  text-align: justify;
   }
 </style>
 ```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
@@ -52,7 +57,9 @@ custom_theme <- theme_few(base_size = 12, base_family = "calibri") +
         panel.grid.major = element_line(color = "grey90", size= 0.1))
 ```
 
-|       In the previous blogpost, I argued that binary indicators of party funding such presence vs absence of public funding, donation or spending caps are poor proxies to use in research assessing the impact of financing regulations on political competition, corruption, or other phenomena of interest. The same applies to aggregate indexes of party and campaign funding, which combine different regulatory dimensions (donation caps + spending caps + public funding + transparency) and derive a composite measure through their addition or some alternative procedure. Since comparative cross-national data of party and campaign funding is difficult to obtain, there is a tendency to use expert-based evaluations of different aspects, such as the significance of public funding for the election campaign of parties and candidates or the fairness in the distribution of campaign subsidies. Yet, the critical challenge these measures face is their validity -- how accurately expert assessments capture the actual situation. The analysis of two such indexes against real data reveals a rather low validity. @fig-experts presents the results. In the left-hand panel, I correlate my data on the public funding level [@lipcean2021] with the expert scores average for the question from the Varieties of Democracy dataset "Is significant public inancing available for parties' and/or candidates' campaigns for national office?" (ordinal scale ranging from 0 (no subsidies) to 4 (significant subsidies)) [@coppedge2020; @coppedge2021]. In the right-hand panel, I correlate my data on the legal requirements to get access to campaign subsidies with the expert scores average from the "Electoral Integrity Project" for the question "Parties/candidates had equitable access to public political subsidies?" (ordinal scale ranging from 1 (strong disagreement) to 5 (strong agreement)) [@norris2019; @norris2019a]. As one may notice, the relationship between actual indicators of public funding and expert assessments produce a considerable mismatch, indicating that expert judgements must be treated cautiously in research on political financing.
+|       In the previous blogpost, I argued that binary indicators of party funding such presence vs absence of public funding, donation or spending caps are poor proxies to use in research assessing the impact of financing regulations on political competition, corruption, or other phenomena of interest. The same applies to aggregate indexes of party and campaign funding, which combine different regulatory dimensions (donation caps + spending caps + public funding + transparency) and derive a composite measure through their addition or some alternative procedure. Since comparative cross-national data of party and campaign funding is difficult to obtain, there is a tendency to use expert-based evaluations of different aspects, such as the significance of public funding for the election campaign of parties and candidates or the fairness in the distribution of campaign subsidies. Yet, the critical challenge these measures face is their validity -- how accurately expert assessments capture the actual situation. The analysis of two such indexes against real data reveals a rather low validity. @fig-experts presents the results.[^1] In the left-hand panel, I correlate my data on the public funding level [@lipcean2021] with the expert scores average for the question from the Varieties of Democracy dataset "Is significant public inancing available for parties' and/or candidates' campaigns for national office?" (ordinal scale ranging from 0 (no subsidies) to 4 (significant subsidies)) [@coppedge2020; @coppedge2021]. In the right-hand panel, I correlate my data on the legal requirements to get access to campaign subsidies with the expert scores average from the "Electoral Integrity Project" for the question "Parties/candidates had equitable access to public political subsidies?" (ordinal scale ranging from 1 (strong disagreement) to 5 (strong agreement)) [@norris2019; @norris2019a]. As one may notice, the relationship between actual indicators of public funding and expert assessments produce a considerable mismatch, indicating that expert judgements must be treated cautiously in research on political financing.
+
+[^1]: You can replicate @fig-experts by using this data [{{< fa file-csv >}}](dpf_dataset.csv)`dpf_dataset.csv` along with the R code.
 
 ```{r}
 #| label: fig-experts
@@ -89,7 +96,10 @@ plot_grid(expert_amount, expert_access, rel_widths = c(1.2, 1))
 ```
 
 |       The above examples show that, as the regulation-based indicators or composite measures, expert evaluations are not valid proxies for the public funding mechanism. Hence, the question is whether one can identify better proxies that can be used by scholars in comparative research assessing the role of public funding in politics. In fact, there is one measure, labelled as state dependency [@casalbértoa2014]. It reflects the share of state funding in the structure of party income. The higher the share of public funding, the higher the rate of state dependency. Considering that it is a measure derived from real data on public funding, it should be a better measure. While this is true, state dependency might still be a biased measure compared to the actual amount of subsidies per vote. Why so? The main reason is that the the amount of public funding could affect its own share in the structure of party income. The higher the level of state financial support to parties, the lower the incentives to seek private contributions. Moreover, state dependency could still hide considerable variation in public funding per vote despite similar shares in the structure of party income across countries.
-|       To test whether this is the case, one needs both measures: subsidies per vote and the state dependency rate. Unfortunately, I do not have data on the state dependency rate for post-communist regimes, given the lack of reliable data on private financing. Therefore, I borrow data from other cross-national studies that provide both indicators [@biezen2017, pp. 87, 90; @casas-zamora2005, p. 49, @nassmacher2009, p. 143]. The relationship between subsidies per vote and state dependency, presented in @fig-dependency, depicts a mixed picture. Although subsidies per vote and state dependency are positively associated, the strength of the relationship is not sufficient to make them exchangeable.
+|       To test whether this is the case, one needs both measures: subsidies per vote and the state dependency rate. Unfortunately, I do not have data on the state dependency rate for post-communist regimes, given the lack of reliable data on private financing. Therefore, I borrow data from other cross-national studies that provide both indicators [@biezen2017, pp. 87, 90; @casas-zamora2005, p. 49, @nassmacher2009, p. 143]. The relationship between subsidies per vote and state dependency, presented in @fig-dependency, depicts a mixed picture.[^2] Although subsidies per vote and state dependency are positively associated, the strength of the relationship is not sufficient to make them exchangeable.
+
+[^2]:
+    | You can replicate @fig-dependency by using this data [{{< fa file-csv >}}](dpf_dependence.csv)`dpf_dependence.csv` along with the R code.
 
 ```{r}
 #| label: fig-dependency

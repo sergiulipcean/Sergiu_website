@@ -1,0 +1,81 @@
+---
+title: "Relationship between public funding of elections, disclosure of campaign donations and legislative corruption by democracy and income levels"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2022-10-23"
+categories: [public funding of parties, transparency, donations, elections, democracy, income, plotly] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 2em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10)
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(plotly)
+library(haven)
+#library(vdemdata)
+library(rgl)
+library(webshot)
+```
+
+```{r}
+#getwd()
+vdem2 <- read_csv("vdem2.csv") %>%
+  drop_na(e_fh_status)
+```
+
+```{r}
+m <- list(l = 0,  r = 0, b = 0, t = 0, pad = 4)
+#my_colour <- colorRamp(c("red", "blue"))
+#my_colour2 <- viridisLite::viridis(3)
+#my_colour3 <- c("navy", "orange", "steelblue3")
+
+vdem2 %>%
+  plot_ly(x = ~v2elpubfin, y = ~v2lgcrrpt, z = ~v2eldonate, size = ~e_gdppc,
+          marker = list(symbol = 'circle-open', opacity = 0.4, sizemode = 'diameter'), sizes = c(3, 30),
+          color = ~e_fh_status,
+          #colors = "viridis",
+          colors = c("darkgreen", "yellow2",  "red4"),
+                    hoverinfo = 'text',
+          text = ~paste("Country: ", country_text_id, "<br>",
+                        "Public funding: ", v2elpubfin, "<br>",
+                        "Disclosure of donations: ", v2eldonate, "<br>", "Corruption: ", v2lgcrrpt)) %>%
+      # Axes labels and title:
+  layout(scene = list(xaxis = list(title = "Public funding of elections"), 
+                      yaxis = list(title = "Legislative corruption"), 
+                      zaxis = list(title = "Disclosure of campaign donations")),
+         legend = list(title=list(text="Democracy (FH)"), y = 0.5),
+         font = list(size = 14),
+         margin = m)
+
+```
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1em; 
+  font-size: 12pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+<br> Note: The plot depicts the relationship between the public funding of elections (higher values - more public funding), disclosure of campaign donations (higher values - more comprehensive disclosure), on the one hand, and legislative corruption (higher values - less corruption), on the other hand. Additionally, it breaks down this relationship by the level of democratic development (colour) and Income (larger points - higher GDP per capita). More generous public funding of elections and more more demanding disclosure requirements for campaign donations are associated with lower legislative corruption. Likewise, more democratic and wealthier regimes provide more state support to political parties and require more transparency for campaign donations. Data reflects expert opinions. Use the mouse to rotate/spin, zoom in, and hover over the plot for more details. Data source: [@coppedge2022; @vdemdata]
+
+::: {#references}
+:::

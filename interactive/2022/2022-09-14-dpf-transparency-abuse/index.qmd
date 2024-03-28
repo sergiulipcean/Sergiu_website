@@ -1,0 +1,89 @@
+---
+title: "Access to subsidies, financial transparency & abuse of state resources in elections by democracy and income levels"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2022-09-14"
+categories: [public funding access, transparency, elections, abuse of state resources, democracy, income, plotly] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 2em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10) 
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(plotly)
+library(haven)
+#library(car)
+library(rgl)
+library(webshot)
+```
+
+```{r}
+pei <- read_dta("PEI election-level data (PEI_8.0).dta")
+pei <- pei %>%
+  mutate(gdp_pc_ppp = round(gdp_pc_ppp,1),
+         subsidies = round(subsidies, 2),
+         donations = round(donations, 2),
+         rich = round(rich,2),
+         resources = round(resources,2), 
+         fh_score = fhcategory + 1,
+         fh_score = factor(fh_score, labels = c("Not Free", "Partly Free", "Free")))
+```
+
+```{r}
+m <- list(l = 0,  r = 0, b = 0, t = 0, pad = 4)
+
+axx <- list(title = "Access to subsidies")
+axy <- list(title = "Abuse of state resources")
+axz <- list(title = "Financial transparency")
+my_legend <- list(title=list(text='Democracy'))
+
+pei %>%
+  plot_ly(x = ~subsidies, y = ~resources, z = ~accounts, size = ~gdp_pc_ppp,
+          marker = list(symbol = 'circle', opacity = 0.5, sizemode = 'diameter'), sizes = c(4, 40),
+          color = ~fh_score,
+          colors = c("red4", "yellow2", "darkgreen"),
+          hoverinfo = 'text',
+          text = ~paste("Country: ", ISO, "<br>",
+                        "Subsidies: ", subsidies, "<br>",
+                        "Donations: ", donations, "<br>",
+                        "Abuse : ", resources, "<br>", 
+                        "GDP per capita", gdp_pc_ppp)) %>%
+      # Axes labels and title:
+  layout(scene = list(xaxis = axx, yaxis = axy, zaxis = axz),
+         legend = list(title=list(text='Democracy'), 
+                       font = list(size = 14),
+                       y = 0.5),
+         margin = m)
+
+```
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1em; 
+  font-size: 12pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+<br> Note: The plot depicts the relationship between the access (higher values - fairer access) to state subsidies for campaigning, publication of financial accounts (higher values - more transparency), on the one hand, and the abuse of state resources (higher values - more abuse), on the other hand. Additionally, it breaks down this relationship by the level of democratic development (colour) and GDP per capita (larger points - higher GDP). Overall, democracy and wealth are associated with fairer access to subsidies and more transparency of financial accounts than partly free and non-free regimes. Data reflects expert opinions. Use the mouse to rotate/spin, zoom in, and hover over the plot for more details. Data source: [@garnett2022]
+
+::: {#references}
+:::

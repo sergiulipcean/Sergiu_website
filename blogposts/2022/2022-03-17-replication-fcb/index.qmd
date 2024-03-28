@@ -1,5 +1,5 @@
 ---
-title: "The world upside down: delegitimising political finance regulation employing alternative corruption indexes"
+title: "The world upside down: delegitimising political finance regulation employing alternative corruption indices"
 description: "In this blogpost I replicate the study of Casal Bértoa et al. (2014) 'The world upside down: delegitimising political finance regulation' by using alternative corruption indices to check whether their results change conditional on the specific corruption index used"
 author:
   - name: Sergiu Lipcean
@@ -14,12 +14,16 @@ zotero: true
 linkcolor: blue
 urlcolor: blue
 bibliography: references.bib
+resources:
+  - "upside_full.xlsx"
 ---
 
 ```{=html}
 <style type = text/css>
-  body{line-height: 2em; 
-  font-size: 14pt;"}
+  body{line-height: 1.5em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
 </style>
 ```
 ```{r setup, include=FALSE}
@@ -46,19 +50,21 @@ library(ggeffects)
 upside <- read.xlsx("upside_full.xlsx")
 ```
 
-|       In this blog post, I replicate one of a few comparative cross-national studies on the effect of political financing regulations on political corruption [@casalbértoa2014a]. In a nutshell, the title of the paper suggests that political financing regulations (PFR) do not live up to our expectations in reducing political corruption. Despite the normative belief that more party and campaign financing regulations should diminish political corruption, the authors come to a rather pessimistic conclusion. They do not find evidence that donation caps, public funding of political parties or punishments for financing-related breaches diminish corruption.
+|       In this blog post, I replicate one of a few comparative cross-national studies on the effect of political financing regulations on political corruption [@casalbértoa2014a].[^1] In a nutshell, the title of the paper suggests that political financing regulations (PFR) do not live up to our expectations in reducing political corruption. Despite the normative belief that more party and campaign financing regulations should diminish political corruption, the authors come to a rather pessimistic conclusion. They do not find evidence that donation caps, public funding of political parties or punishments for financing-related breaches diminish corruption.
 |       Of course, their findings represent a heavy blow to policymakers' efforts to curb political corruption by restricting the inflows and outflows of political money. The most disappointing result in their study relates to the lack of any curbing effect of state funding. This result is even more disappointing considering the fact that authors use a rather good instrument for measuring public funding of parties - state dependency rate. Here, state dependency represents the proportion of state subsidies in the structure of party income, which means the amount of money political parties receive directly from the state budget for running their regular and electoral activities. One would expect that the more funding parties get from the public purse, the less they will be tempted to ask for illegal funding, thus the lower the probability of getting entangled in corrupt transactions. Hence, @casalbértoa2014a test this argument using information on state dependency rate, but fail to confirm this expectation.
-|       Yet, while they have a pretty good indicator of public funding, the corruption measure they selected is a more specific one - citizens perception of how corrupt political parties are from the Global Corruption Barometer (GCB) conducted by Transparency International. While nothing is wrong with choosing this indicator, one issue in many corruption studies is that the results might be considerably affected by the choice of corruption index. Although many corruption indexes are highly correlated, this is not always the case when the index reflects citizens' not experts' perceptions about political corruption. This is why I replicate this study but also use alternative corruption measures. Among these alternatives, I look at some older indexes widely used in cross-national research on corruption, such as the [Corruption Perception Index (Transparency International)](https://www.transparency.org/en/cpi/2011) (CPI), [Control of Corruption index (World Bank Governance Indicators)](https://info.worldbank.org/governance/wgi/) (WBGI) or [International Country Risk Guide](https://www.prsgroup.com/explore-our-products/icrg/), and newer ones including political corruption index (V-DEM) from the Varieties of Democracies dataset [@vdemdata-2; @coppedge2021a], the Bayesian Corruption index (BCI) [@standaert2015] or the corruption index constructed using partial least squares-structural equation modelling [@dellanno2020]. As figure @fig-experts shows, the correlation between almost all expert-based perception indexes for countries used in @casalbértoa2014a analysis is astonishingly high. But all of them display a visibly lower correlation with the GCB index.
+|       Yet, while they have a pretty good indicator of public funding, the corruption measure they selected is a more specific one - citizens perception of how corrupt political parties are from the Global Corruption Barometer (GCB) conducted by Transparency International. While nothing is wrong with choosing this indicator, one issue in many corruption studies is that the results might be considerably affected by the choice of corruption index. Although many corruption indices are highly correlated, this is not always the case when the index reflects citizens' not experts' perceptions about political corruption. This is why I replicate this study but also use alternative corruption measures. Among these alternatives, I look at some older indices widely used in cross-national research on corruption, such as the [Corruption Perception Index (Transparency International)](https://www.transparency.org/en/cpi/2011) (CPI), [Control of Corruption index (World Bank Governance Indicators)](https://info.worldbank.org/governance/wgi/) (WBGI) or [International Country Risk Guide](https://www.prsgroup.com/explore-our-products/icrg/), and newer ones including political corruption index (V-DEM) from the Varieties of Democracies dataset [@vdemdata-2; @coppedge2021a] and the Bayesian Corruption index (BCI) [@standaert2015]. As @fig-experts shows, the correlation between almost all expert-based perception indices for countries used in @casalbértoa2014a analysis is astonishingly high. But all of them display a visibly lower correlation with the GCB index.
+
+[^1]: You can replicate the analysis and figures by using this data [{{< fa file-excel >}}](upside_full.xlsx)`upside_full.xlsx` along with the R code.
 
 ```{r}
 #| label: fig-experts
-#| fig-cap: "Relationship between different corruption indexes in 2011"
+#| fig-cap: "Relationship between different corruption indices in 2011"
 #| fig-height: 8
 #| fig-width: 8
 
 upside %>%
-  select(cpp_2011, cpi_rev, v2x_corr, wbgi_rev, bci, corr_icrg, corr_sem) %>%
-  ggpairs(columnLabels = c("GCB", "CPI", "V-DEM", "WBGI", "BCI", "ICRG", "SEM"),
+  select(cpp_2011, cpi_rev, v2x_corr, wbgi_rev, bci, corr_icrg) %>%
+  ggpairs(columnLabels = c("GCB", "CPI", "V-DEM", "WBGI", "BCI", "ICRG"),
   lower = list(continuous = wrap("points", color = "lightsteelblue4", alpha = 0.5, size = 2)),
   upper = list(continuous = wrap("cor", color = "lightsteelblue4", size = 4, family = "serif"))) +
   theme_minimal(base_family = "serif") +
@@ -66,7 +72,7 @@ upside %>%
         strip.text = element_text(size = 12))
 ```
 
-|       Since several corruption indexes display a very high correlation, I drop them and use for replication only those that display a lower correlation with GCB and between themselves: GCB, V-DEM, ICRG and SEM. Additionally, I normalise and standardise corruption indexes to make their interpretation easier because they are on different scales. The replication's results regarding the effect of public funding (state dependency) on political corruption are presented in figure @fig-dependency.
+|       Since several corruption indices display a very high correlation, I drop them and use for replication only those that display a lower correlation with GCB and between themselves: GCB, V-DEM, ICRG and BCI. Additionally, I normalise and standardise corruption indices to make their interpretation easier because they are on different scales. The replication's results regarding the effect of public funding (state dependency) on political corruption are presented in @fig-dependency.
 
 ```{r regressions}
 library(modelsummary)
@@ -74,16 +80,16 @@ lm_models <- list(
   m1 <- lm(norm_cpp ~ state_dependency + payout_threshold + donation_limits + v2x_polyarchy, data = upside),
   m2 <- update(m1, norm_vdem ~.),
   m3 <- update(m1, norm_icrg ~.),
-  m4 <- update(m1, norm_sem ~.))
+  m4 <- update(m1, norm_bci ~.))
 
 ```
 
 ```{r}
-model_names <- c("GCB", "V-DEM", "ICRG", "SEM")
+model_names <- c("GCB", "V-DEM", "ICRG", "BCI")
 names(lm_models) <- model_names
 
 lm_models_df <- map(lm_models, ~tidy(.x, conf.int = T)) %>% 
-  bind_rows(.id = "indexes") %>%
+  bind_rows(.id = "indices") %>%
   mutate(conf_low_90 = estimate - 1.645*std.error,
          conf_high_90 = estimate + 1.645*std.error) %>%
   filter(term == "state_dependency")
@@ -91,11 +97,11 @@ lm_models_df <- map(lm_models, ~tidy(.x, conf.int = T)) %>%
 
 ```{r}
 #| label: fig-dependency
-#| fig-cap: "Effect of state dependency on corruption by employing alternative corruption indexes"
+#| fig-cap: "Effect of state dependency on corruption by employing alternative corruption indices"
 #| fig-height: 3.5
 #| fig-width: 6
 
-ggplot(lm_models_df, aes(x = fct_reorder(indexes, estimate), y= estimate)) +
+ggplot(lm_models_df, aes(x = fct_reorder(indices, estimate), y= estimate)) +
   geom_point(size = 2, color = "lightsteelblue4") +
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high, width = 0), color = "lightsteelblue4", linewidth = 0.5) +
   geom_errorbar(aes(ymin = conf_low_90, ymax = conf_high_90, width = 0), color = "lightsteelblue4", linewidth = 1.2) +
@@ -111,11 +117,11 @@ ggplot(lm_models_df, aes(x = fct_reorder(indexes, estimate), y= estimate)) +
   labs(y = "Public funding estimates with 90% \nand 95% Confidence Intervals" , x = "")
 ```
 
-|       As one may notice, for the GCB and ICRG corruption indexes, the effect is positive (more public funding is associated with a higher corruption perception). In contrast, while for V-DEM and SEM indexes, the effect is negative (more public funding is associated with a lower corruption perception). However, these results are not statistically significant, which implies that state dependency (public funding of parties) does not affect the level of political corruption. The null effect can also beseen in figure @fig-marginal-effects.
+|       As one may notice, for the GCB and ICRG corruption indices, the effect is positive (more public funding is associated with a higher corruption perception). In contrast, while for V-DEM and BCI indices, the effect is negative (more public funding is associated with a lower corruption perception). However, these results are not statistically significant, which implies that state dependency (public funding of parties) does not affect the level of political corruption. The null effect can also be seen in @fig-marginal-effects.
 | 
 
 ```{r}
-lm_models_mdx <- map(lm_models, ~ggeffect(.x, terms = "state_dependency")) %>% bind_rows(.id = "indexes")
+lm_models_mdx <- map(lm_models, ~ggeffect(.x, terms = "state_dependency")) %>% bind_rows(.id = "indices")
 ```
 
 ```{r}
@@ -128,7 +134,7 @@ ggplot(lm_models_mdx, aes(x = x, y = predicted)) +
   geom_ribbon(aes(ymin = conf.low, ymax = conf.high), fill = "grey80", alpha = 0.5) +
   geom_line(color = "steelblue4") +
   scale_y_continuous(breaks = seq(-2, 1, 0.5))+
-  facet_wrap(~ indexes, scales = "free_x", ncol = 4) +
+  facet_wrap(~ indices, scales = "free_x", ncol = 4) +
   geom_hline(yintercept = 0, color = "slategray4", linetype = 5) + 
   theme_light(base_family = "serif", base_size = 11) +
   theme(panel.grid.minor = element_blank(),

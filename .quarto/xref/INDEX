@@ -49,5 +49,29 @@
   },
   "blogposts/2022/2022-04-27-replication-hgb/index.qmd": {
     "index.html": "40a1afcb"
+  },
+  "interactive/2021/2021-09-27-dpf-overtime-post-communist/index.qmd": {
+    "index.html": "930b0dbc"
+  },
+  "interactive/2021/2021-11-23-rich-buy-elections/index.qmd": {
+    "index.html": "6b950ebc"
+  },
+  "interactive/index.qmd": {
+    "index.html": "730ad7fe"
+  },
+  "interactive/2022/2022-02-14-dpf-transparency-abuse/index.qmd": {
+    "index.html": "dfbd9b29"
+  },
+  "interactive/2022/2022-09-14-dpf-transparency-abuse/index.qmd": {
+    "index.html": "36be6862"
+  },
+  "interactive/2022/2022-10-23-donations-disclosure-corruption/index.qmd": {
+    "index.html": "8f3c7990"
+  },
+  "interactive/2023/2023-02-11-dpf-disclosure-integrity/index.qmd": {
+    "index.html": "8ef9e7ab"
+  },
+  "interactive/2023/2023-05-19-dpf-state-capture/index.qmd": {
+    "index.html": "0aed61a0"
   }
 }
