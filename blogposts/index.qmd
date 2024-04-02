@@ -1,7 +1,11 @@
 ---
 title: "Blogposts"
 author: ""
-listing: 
+listing:
+  - id: posts_2023
+    contents: "2023/**/index.qmd"
+    sort: "date desc"
+    categories: true
   - id: posts_2022
     contents: "2022/**/index.qmd"
     sort: "date desc"
@@ -17,6 +21,12 @@ toc-location: right
 code-tools: false
 comments: false
 ---
+
+## 2023
+
+::: {#posts_2023}
+:::
+
 
 ## 2022
 

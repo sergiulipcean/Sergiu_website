@@ -4,6 +4,10 @@ project:
 
 website:
   title: "Sergiu Lipcean"
+
+  google-analytics: "G-HFVKNBVPZ6"
+  cookie-consent: true
+  
   navbar:
     left:
       - href: index.qmd
@@ -27,7 +31,7 @@ website:
   page-footer: 
     background: "#2C3E50"
     left: Copyright 2024, Sergiu Lipcean
-    right: This website is built with [{{< fa brands r-project title="R Project" >}}](https://www.r-project.org/about.html){target=_blank} and [Quarto](https://quarto.org/){target=_blank}
+    right: This website is built with [{{< fa brands r-project title="R Project" >}}](https://www.r-project.org/about.html){target=_blank}, [Quarto](https://quarto.org/){target=_blank} and [{{< fa brands github title="GitHub octocat logo" >}}](https://github.com/sergiulipcean/Sergiu_website){target=_blank} 
 
 format:
   html:

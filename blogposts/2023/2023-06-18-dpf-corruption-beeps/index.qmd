@@ -1,0 +1,46 @@
+---
+title: "Public Funding of Political Parties Is Unlikely To Reduce Corruption"
+description: "This blogpost summarises the findings of an article co-authored with Iain McMenamin titled Rethinking public funding of parties and corruption: Confronting theoretical complexity and challenging measurement. Governance. First published: 11 April 2023. DOI: https://doi.org/10.1111/gove.12782"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.eu
+    orcid: 0000-0002-8944-6505
+  - name: Iain McMenamin
+    url: https://www.dcu.ie/lawandgovernment/people/iain-mcmenamin
+    orcid: 0000-0002-1704-390X
+date: "2023-06-18"
+categories: [party financing, public funding of parties, political corruption, post-communist regimes] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1.5em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+|       This blogpost was originally published on the [Global Anticorruption Blog](https://globalanticorruptionblog.com/2023/06/18/public-funding-of-political-parties-is-unlikely-to-reduce-corruption/) and is republished below.[^1]
+|       Does public funding of political parties reduce corruption? Intuitively, there are good reasons to believe that it does. After all, when parties receive a substantial portion of their funding from public sources, they are less dependent on private contributions—both legal and illegal. That straightforward logic has led many scholars and prestigious organizations to recommend higher levels of public funding for parties and candidates. The Council of Europe’s Committee of Ministers, for example, [recommends](https://www.coe.int/t/dg1/legalcooperation/economiccrime/cybercrime/cy%20activity%20interface2006/rec%202003%20(4)%20pol%20parties%20EN.pdf) public funding of political parties and electoral candidates as an anticorruption measure, and the OECD, while not explicitly using the language of corruption, recommends public funding as part of a holistic system of political finance regulation to limit [policy capture](https://read.oecd-ilibrary.org/governance/financing-democracy_9789264249455-en#page1).
+
+[^1]: The only change from the original blogpost is clarifying that Business Environment and Enterprise Performance Survey (BEEPS) data we used in our study is conducted by the [EBRD](https://www.ebrd.com/home) in partnership with the [World Bank](https://www.worldbank.org/en/home).
+
+|       But the empirical evidence on the anticorruption impact of public funding for parties is surprisingly thin, and results that [initially seem to show](https://doi.org/10.1017/S0007123419000358) the sort of effect described above often turn out to be quite [fragile and unreliable](https://sergiulipcean.eu/blogposts/2022/2022-04-27-replication-hgb/). We recently published our own [study](https://onlinelibrary.wiley.com/doi/full/10.1111/gove.12782), which examines how the [level of public funding](https://journals.sagepub.com/doi/full/10.1177/13540688211037302) for political parties affects enterprise managers’ perceptions of the impact of payments to government officials, using EBRD and World Bank [survey data](https://www.beeps-ebrd.com/data/) from 27 post-communist countries. Although we find an association between higher public funding and lower corruption, this result is extremely sensitive to minor changes in method, and the results are too uncertain to recommend public funding as a policy intervention to reduce corruption.
+
+|       We suspect that one of the reasons that empirical research has failed to find robust anticorruption effects of public funding is that many of the unlawful payments to politicians are used for their personal consumption, rather than for political purposes. As noted above, the economic logic of the view that public funding reduces corruption is that if parties can rely more on public funding for election campaigns and other legitimate political expenses, they will be less tempted to accept bribes, because they will have less need to fill their campaign coffers with dirty money. But if much of the illegal money given to politicians is used for their personal gratification, rather than for political purposes, than public funding of campaigns will not have much of an effect.
+
+|       This is not to say that countries should not significantly increase public funding of political parties. Corruption is enormously damaging, and even very high levels of public funding for parties are unlikely to have much impact on most national budgets, so even the possibility that significant public funding might reduce corruption, at least in some contexts, may make this investment of resources worthwhile, even if we lack strong direct evidence of effectiveness. And of course there are many other reasons, besides anticorruption, to favor public funding of political campaigns. That said, an honest appraisal of the existing research compels the conclusion that, to date, the evidence that public funding will substantially reduce corruption is weak and speculative, and we should therefore not get too excited about its potential as a general anticorruption measure.
+
+::: {#references}
+:::

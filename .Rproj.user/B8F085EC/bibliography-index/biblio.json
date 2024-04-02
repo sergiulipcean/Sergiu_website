@@ -1376,6 +1376,47 @@
             "title": "Do Political Finance Reforms Reduce Corruption?",
             "type": "article-journal",
             "volume": "51"
+        },
+        {
+            "DOI": "10.1177/0192512114523302",
+            "URL": "https://doi.org/10.1177/0192512114523302",
+            "author": [
+                {
+                    "family": "Casal Bértoa",
+                    "given": "Fernando"
+                },
+                {
+                    "family": "Molenaar",
+                    "given": "Fransje"
+                },
+                {
+                    "family": "Piccio",
+                    "given": "Daniela R"
+                },
+                {
+                    "family": "Rashkova",
+                    "given": "Ekaterina R"
+                }
+            ],
+            "container-title": "International Political Science Review",
+            "id": "casalbértoa2014c",
+            "issue": "3",
+            "issued": {
+                "date-parts": [
+                    [
+                        2014,
+                        6,
+                        1
+                    ]
+                ]
+            },
+            "language": "en",
+            "note": "Publisher: SAGE Publications Ltd",
+            "page": "355-375",
+            "title": "The world upside down: Delegitimising political finance regulation",
+            "title-short": "The world upside down",
+            "type": "article-journal",
+            "volume": "35"
         }
     ],
     "project_biblios": []
