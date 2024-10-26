@@ -1,0 +1,280 @@
+---
+title: "Party registration requirements in Moldova 1991-2020: a comparative outlook"
+description: "This blog post summarizes an unpublished 2019 study prepared for Moldova's Constitutional Court, examining legal requirements for registering new political parties. It compares Moldova’s party registration requirements with other post-communist regimes, focusing on the variation in minimum membership thresholds and territorial distribution requirements that may affect citizens’ freedom of association. It also incorporates the 2020 decision of the Constitutional Court on the subject."
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2024-07-20"
+categories: [party registration, freedom of association, democracy, plotly] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1.5em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10)
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(openxlsx)
+library(plotly)
+library(rgl)
+library(scales)
+library(webshot)
+```
+
+```{r}
+openess2 <- read.xlsx("openess2.xlsx") %>%
+  arrange(country, year)
+  
+
+openess3 <- openess2 %>%
+  mutate(country = factor(country)) %>%
+  group_by(country) %>%
+  #distinct_at(3, .keep_all = T) %>%
+  mutate(restrictive_prc = round(number/regist_v*100, 4))
+
+```
+
+***Evolution of party registration requirements***
+
+|       Moldova’s journey in regulating party registration reveals a significant shift from liberal to restrictive requirements. When the Law on Parties and Other Socio-Political Organizations (LPSOP) was adopted in 1991, the registration process required only 300 signatures [@monitoruloficialnr.11-12art.1061991]. However, the 1998 amendment marked a dramatic change, increasing the requirement to 5,000 members and introducing territorial distribution requirements [@monitoruloficialno.100-102.art.6131998]. Specifically, parties needed members to reside in at least half of the second-level administrative-territorial units, with a minimum of 150 members in each. The 2008 Law on Political Parties (LPP) slightly moderated these requirements, reducing the minimum to 4,000 members and 120 members per district [@monitoruloficialno.42-44art.1192008]. However, as this analysis demonstrates, even these adjusted requirements remained notably stringent in a regional context.
+
+***Comparative analysis of registration requirements***
+
+|       Figure 1 presents the minimum number of members required for party registration across post-communist regimes since the early 1990s. While Moldova ranks 13th in raw numbers, this metric alone provides an incomplete picture.
+
+```{r}
+#| label: fig-barplot-registration
+#| fig-cap: "Cross-national and cross-temporal variation in party registration requirements (numbr of signatures) across post-communist regimes 1990-2019"
+#| fig-height: 12
+#| fig-width: 8
+
+# Preprocess data
+openess_regist <- openess3 %>% 
+  drop_na(regist_v) %>%
+  mutate(cntr_year = fct_reorder(cntr_year, number))
+
+# Create plotly plot
+plotly_plot1 <- plot_ly(
+  data = openess_regist, 
+  x = ~number, 
+  y = ~cntr_year,  # Ensure this is a unique country-year label
+  color = ~country, 
+  colors = "plasma",
+  type = 'bar',
+  orientation = 'h',  # Horizontal bars for coord_flip
+  hoverinfo = 'text',  # Show only text in hover
+  text = ~paste(number),  # Enhanced hover text
+  marker = list(line = list(color = 'rgba(0, 0, 0, 0.6)', width = 1))
+) %>%
+  layout(
+    title = "",
+    xaxis = list(title = "Minimum registration threshold - number of signatures"),
+    yaxis = list(title = "", type = "category", categoryorder = "total ascending"),
+    showlegend = FALSE,
+    bargap = 0.1
+  )
+
+
+# Display the plot
+plotly_plot1
+
+```
+
+|       A more nuanced understanding emerges when we consider these requirements in relation to each country’s electoral market. Figure 2 illustrates this relationship by showing the ratio between registered voters and required members. This analysis reveals Moldova holds the third position in terms of stringency of registration requirements, trailing only behind Kazakhstan (2002-2019) and Slovakia (2005-2019).
+
+```{r}
+#| label: fig-barplot-stringency
+#| fig-cap: "Cross-national and cross-temporal variation in the stringency of party registration requirements across post-communist regimes 1990-2019"
+#| fig-height: 10
+#| fig-width: 7
+
+# Preprocess data to filter and reformat
+openess3_stringency <- openess3 %>% 
+  filter(restrictive < 500000) %>%  # Filter for restrictive < 500000
+  drop_na(regist_v) %>%  # Drop NA values in regist_v
+  mutate(cntr_year = fct_reorder(cntr_year, restrictive))  # Reorder cntr_year by restrictive
+
+# Create the plotly chart
+plotly_plot2 <- plot_ly(openess3_stringency, 
+                       x = ~restrictive/1000,  # Convert restrictive to thousands
+                       y = ~cntr_year, 
+                       color = ~country, 
+                       colors = "plasma",
+                       type = 'bar',
+                       orientation = 'h',  # Horizontal bars for coord_flip effect
+                       text = ~paste(restrictive),  # Hover text
+                       hoverinfo = 'text',  # Show only text in hover
+                       marker = list(line = list(color = 'rgba(0, 0, 0, 0.6)', width = 1))) %>%
+
+  # Layout to customize the theme and axes
+  layout(
+    title = "",
+    xaxis = list(
+      title = "The size of voter pool from which to recruit a single member (thousand)"
+      ),
+    yaxis = list(title = "", categoryorder = "total ascending"),
+    showlegend = FALSE,
+    bargap = 0.1)
+    
+# Display the plot
+plotly_plot2
+
+
+```
+
+|       In practical terms, a new party in Moldova needed to recruit one member from every 608 registered voters when the new LPP was adopted in 2008. This challenge becomes even more daunting when one considers migration and other voter related registration issues. Figure 3 provides an integrated perspective, combining the insights from Figures 1 and 2 to demonstrate how raw membership requirements and voter pool size interact to create varying levels of accessibility for new political parties across different countries. On the X-axis is shows the size of the voters' pool in registered voters, on the Y-axis there are signature requirements while the size of the bubbles indicate the stringency of registration requirement. The larger the bubble the more effort newly aspiring political parties need to deploy to recruit potential members. As one may notice, Moldova is among those political regimes placing a heavier burden to achieve this goal.
+
+```{r}
+#| label: fig-scatterplot-stringency
+#| fig-cap: "Cross-national variation in the stringency of party registration requirements across post-communist regimes 1990-2019 relative to the size of voters' pool and signature requirements"
+#| fig-height: 5
+#| fig-width: 6
+
+# Add hover text as a new column to the data
+
+# Create the plotly scatter plot
+plotly_plot3 <- plot_ly(openess3,
+                       x = ~regist_v / 1e6,  # Convert registered voters to millions
+                       y = ~number,
+                       color = ~country,
+                       size = ~restrictive_prc,
+                       hoverinfo = 'text',
+                       text = ~paste("Country-year: ", cntr_year, "<br>",
+                        "% voters: ", restrictive_prc),
+                       type = 'scatter',
+                       mode = 'markers',
+                       marker = list(
+                         symbol = 'circle',
+                         opacity = 0.3,
+                         sizemode = 'diameter'
+                       ),
+                       sizes = c(5, 50),  # Set size range directly
+                       colors = "plasma") %>%
+
+  # Customize the layout for axes and legend
+  layout(
+    title = "",
+    xaxis = list(
+      title = "Registered voters in millions (pseudo-log scale)",
+      type = "log",
+      tickvals = c(0, 1, 3, 8, 15, 30, 60, 100)  # X-axis pseudo-log breaks
+    ),
+    yaxis = list(
+      title = "Number of required signatures (pseudo-log scale)",
+      type = "log",
+      tickvals = c(0, 5, 10, 30, 100, 300, 1000, 3000, 10000, 50000)  # Y-axis pseudo-log breaks
+    ),
+    showlegend = TRUE,
+    legend = list(title = list(text = "% Voters")),  # Size legend title
+    annotations = list(
+      list(
+        x = 0,
+        y = 0,
+        xref = 'paper',
+        yref = 'paper',
+        showarrow = FALSE,
+        text = "Source: Party laws and other regulations for the respective countries",
+        font = list(size = 11)
+      )
+    )
+  )
+
+# Display the plot
+plotly_plot3
+
+
+```
+
+***Territorial distribution requirements***
+
+|       The territorial representation requirement introduced in 1998 added another significant barrier to party registration since they needed at least 120 members residing in half of the second-tier administrative units (districts). While the 1999 ruling of the Constitutional Court upheld this requirement, finding it consistent with freedom of association [@curteaconstitutionala1999], it represents another hurdle for the emergence of new parties. The "territorial representation" requirement is less widespread across post-communist world. Out of 27 countries, only 10 have implemented such a rule, but Moldova’s version stands among the strictest. Figure 4 shows that among the ten post-communist countries that implemented territorial requirements, Moldova’s were among the most demanding, particularly when considering the size of its electorate. Only Romania imposed comparable territorial requirements, mandating at least 700 members in each of 18 counties. Notably, several countries have moved away from such requirements – Russia, for instance, abandoned territorial representation rules after 2012.
+
+```{r}
+#| label: fig-scatterplot-territorial
+#| fig-cap: "Cross-national variation in the stringency of party registration requirements based on territorial distribution of membership across post-communist regimes 1990-2019"
+#| fig-height: 5
+#| fig-width: 6
+
+teritorial_distrib <- read.xlsx("openess2.xlsx", sheet = "ter") %>%
+  mutate(country_year = str_c(iso, year, sep = "-"),
+         country = factor(country)) %>%
+  ungroup() %>%
+  left_join(openess3 %>% select(iso, year, restrictive_prc), by = c("iso", "year"))
+
+# Assuming teritorial_distrib is your data frame
+plotly_plot4 <- plot_ly(
+  data = teritorial_distrib,
+  x = ~branches,
+  y = ~teritorial,
+  color = ~iso,
+  size = ~restrictive_prc,
+  type = 'scatter',
+  mode = 'markers',
+  marker = list(
+    symbol = 'circle',
+    opacity = 0.3,
+    sizemode = 'diameter'
+  ),
+  hoverinfo = 'text',
+  text = ~paste("Country-year:", country_year, "<br>",
+                "% voters: ", restrictive_prc),
+  sizes = c(5, 50),  # Adjusts point size range similar to scale_size_continuous in ggplot
+  colors = "plasma"    # Set color palette
+) %>%
+  layout(
+    title = "",
+    xaxis = list(
+      title = "Share of territorial-administrative units (%)",
+      #type = "log",   # Mimics scale_x_log10() from ggplot
+      tickvals = seq(0, 100, 10)  # Example pseudo-log scale breaks
+    ),
+    yaxis = list(
+      title = "Party members in each unit",
+      tickvals = seq(0, 800, 100)  # Sets similar y-axis breaks as ggplot
+    ),
+    showlegend = TRUE,
+    legend = list(title = list(text = "% Voters")),# Size legend title
+    annotations = list(
+      list(
+        x = 0,
+        y = 0,
+        xref = 'paper',
+        yref = 'paper',
+        showarrow = FALSE,
+        text = "Source: Party laws and other regulations for the respective countries",
+        font = list(size = 11)
+      )
+    )
+  )
+  
+plotly_plot4
+
+```
+
+***A new constitutional shift***
+
+|       A significant shift occurred in 2020 when Moldova’s Constitutional Court ruled that both the 4,000-member requirement and the territorial representation condition were excessively restrictive and unconstitutional [@curteaconstitutionala2020]. This landmark decision acknowledged that these requirements created disproportionate barriers to political participation and association. 
+| 
+| ***Implications for democratic development***
+|  
+|       This analysis demonstrates that Moldova’s party registration requirements, prior to the 2020 Constitutional Court decision, placed it among the most restrictive regimes in the post-communist space. The combined effect of high membership thresholds and territorial distribution requirements created substantial barriers to entry for new political forces, potentially hampering political pluralism and democratic development. The Court’s 2020 decision represents a significant step toward aligning Moldova’s party registration framework with democratic principles and regional best practices.This constitutional shift highlights the need to carefully calibrate party registration requirements: they must be robust enough to ensure genuine political commitment while remaining accessible enough to foster democratic pluralism, participation and competition.
+
+::: {#references}
+:::
