@@ -9,7 +9,8 @@
     "interactive\\index.qmd": [
       "2023/**/index.qmd",
       "2022/**/index.qmd",
-      "2021/**/index.qmd"
+      "2021/**/index.qmd",
+      "2024/**/index.qmd"
     ]
   }
 }

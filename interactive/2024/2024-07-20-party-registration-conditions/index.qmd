@@ -1,0 +1,136 @@
+---
+title: "Party registration requirements across post-communist regimes 1991-2020"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2024-07-20"
+categories: [party registration, freedom of association, democracy, plotly] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+zotero: true
+linkcolor: blue
+urlcolor: blue
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1.5em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10)
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(openxlsx)
+library(plotly)
+library(rgl)
+library(scales)
+library(webshot)
+```
+
+```{r}
+
+#| label: data-management
+
+teritorial_distrib <- read.xlsx("openess2.xlsx", sheet = "ter") %>%
+  mutate(country_year = str_c(iso, year, sep = "-"),
+         country = factor(country)) %>%
+  ungroup() %>%
+  dplyr::select(iso, year, country_year, territorial, branches)
+
+openess <- read.xlsx("openess2.xlsx") %>%
+  mutate(country = factor(country)) %>%
+  group_by(country) %>%
+  mutate(restrictive_prc = round(number/regist_v*100, 4)) %>%
+  left_join(teritorial_distrib, by = c("iso", "year")) %>%
+  mutate(across(.cols= territorial:branches, ~ifelse(is.na(.x), 0, .x))) %>%
+  drop_na(restrictive_prc)
+```
+
+```{r}
+
+#| fig-height: 5
+#| fig-width: 6
+
+### Custom colours
+my_colurs <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", 
+            "#A65628", "#F781BF", "#999999", "#66C2A5", "#FC8D62", "#8DA0CB", 
+            "#E78AC3", "#A6D854", "#FFD92F", "#E5C494", "#B3B3B3", "#8DD3C7",
+            "#FFFFB3", "#BEBADA", "#FB8072", "#80B1D3", "#FDB462", "#B3DE69",
+            "#FCCDE5", "#D9D9D9", "#BC80BD")
+
+### Custom plot margins
+m <- list(l = 0,  r = 0, b = 0, t = 0, pad = 4)
+
+### Draw scatterplot
+plotly_plot <- plot_ly(
+  openess,
+  x = ~regist_v / 1e6,  # Convert registered voters to millions
+  y = ~number,
+  z = ~territorial + 1,  
+  color = ~country,
+  size = ~restrictive_prc,
+  hoverinfo = 'text',
+  text = ~paste("Country-year: ", cntr_year, "<br>",
+                "% voters: ", restrictive_prc),
+  type = 'scatter3d',  # Use 3D scatter plot type
+  mode = 'markers',
+  marker = list(
+    symbol = 'circle',
+    opacity = 0.6,
+    sizemode = 'diameter'
+  ),
+  sizes = c(7, 70),  # Set size range directly
+  colors = my_colurs
+) %>%
+  # Customize the layout for axes, legend, and annotations
+  layout(
+    title = "",
+    scene = list(
+      xaxis = list(
+        title = "Registered voters in millions (log scale)",
+        type = "log",
+        tickvals = c(0, 1, 3, 8, 15, 30, 60, 100)
+      ),
+      yaxis = list(
+        title = "Number of required signatures (log scale)",
+        type = "log",
+        tickvals = c(0, 5, 10, 30, 100, 300, 1000, 3000, 10000, 50000)
+      ),
+      zaxis = list(
+        title = "Territorial distribution (No signatures)", 
+        type = "log",
+        tickvals = c(1, 10, 20, 50, 100, 300, 700)
+      )
+    ),
+    margin = m,
+    showlegend = TRUE,
+    legend = list(title = list(text = "% Voters"))
+    )
+
+# Display the plot
+plotly_plot
+
+```
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1em; 
+  font-size: 12pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+
+<br> Note: The plot depicts the relationship between the size of electoral market measured as the number of registered voters, the number of voters' signatures required to register a new political party and the territorial distribution of new party members across administrative-territorial units within each country. The size of the bubbles, represents the percentage of voters from which to recruit a single member and reflects,  the effort required by newly aspiring political organisations to recruit potential members from the voters' pool. The larger the bubbles, the more burdensome are party registration provisions, thus demanding more efforts on behalf of new political parties. Additionally, the higher the number of signatures for the "Territorial distribution" axis, the more difficult for new parties to register. Use the mouse to rotate/spin, zoom in and out, and hover over the plot for more details. Data source: Own data collected from party laws and regulations of the respective countries over three decades.
+
+::: {#references}
+:::
