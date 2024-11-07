@@ -1,0 +1,126 @@
+---
+title: "Moldova PRO-EU Referendum"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2024-11-07"
+categories: [referendum, european union, constitutional amendment, democracy, plotly] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+zotero: true
+linkcolor: blue
+urlcolor: blue
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1.5em; 
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10)
+```
+
+```{r}
+# Download R packages 
+library(tidyverse)
+library(plotly)
+library(webshot)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(scales)
+```
+
+```{r}
+
+#| label: data-management
+
+referendum_data <- readRDS("referendum_map_data.rds") %>%
+  mutate(diff_shares = diff_shares*100)
+```
+
+```{r}
+
+#| fig-height: 8
+#| fig-width: 6
+
+# Create the subtitle as a separate annotation
+subtitle_annotation <- list(
+  text = "District-Level Results",
+  xref = "paper",
+  yref = "paper",
+  xanchor = "center",
+  yanchor = "top",
+  x= 0.55,
+  y = 1,
+  sizex = 1,
+  sizey = 1,
+  showarrow = FALSE,
+  font = list(size = 16)
+)
+
+# Create the caption annotation
+caption_annotation <- list(
+  text = "Data Source: Own elaboration based on Central Electoral Commission official results",
+  xref = "paper",
+  yref = "paper",
+  xanchor = "right",
+  yanchor = "bottom",
+  x = 1,
+  y = 0,
+  sizex = 1,
+  sizey = 1,
+  showarrow = FALSE,
+  font = list(size = 12)
+)
+
+# Create the plotly choropleth map
+referendum_map <- plot_ly() %>%
+  add_sf(
+    data = referendum_data,
+    color = ~diff_shares,
+    colors = "plasma",
+    split = ~rayon,
+    showlegend = FALSE,
+    text = ~paste("District:", rayon, 
+                  "<br>Difference:", diff_shares,"%"),
+    hoverinfo = "text",
+    hoveron = "fills",
+    opacity = 1,
+    line = list(
+      width = 0.5)) %>%
+  colorbar(title = "% Difference") %>%
+  layout(
+    title = "",
+    annotations = list(subtitle_annotation, caption_annotation),
+    geo = list(
+      showframe = FALSE,
+      projection = list(type = "mercator"),
+      fitbounds = "locations"
+    ),
+    colorbar = list(x = 0.7, # Adjust the x position to move the colorbar horizontally
+                y = 0.5, # Adjust the y position to move the colorbar vertically
+                len = 0.7 # Adjust the length of the colorbar
+    )
+   
+  )
+referendum_map
+
+```
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1em; 
+  font-size: 12pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+
+<br> Note: The plot displays the percentage difference at the district (rayon) level between votes cast PRO and AGAINST amending the constitution for joining the European Union (Referendum was held on 20 October 2024). Use the mouse to hover over the plot for results in each district. Referendum question: Do you support the amendment of the Constitution in order for the Republic of Moldova to join the European Union?
+

@@ -242,14 +242,14 @@
     "href": "interactive/index.html",
     "title": "Interactive plots",
     "section": "",
-    "text": "party registration\n\n\nfreedom of association\n\n\ndemocracy\n\n\nplotly\n\n\n\n\n\n\n\n\n\n\n\nJul 20, 2024\n\n\nSergiu Lipcean\n\n\n\n\n\n\nNo matching items"
+    "text": "referendum\n\n\neuropean union\n\n\nconstitutional amendment\n\n\ndemocracy\n\n\nplotly\n\n\n\n\n\n\n\n\n\n\n\nNov 7, 2024\n\n\nSergiu Lipcean\n\n\n\n\n\n\n  \n\n\n\n\n\n\n\n\n\n\nparty registration\n\n\nfreedom of association\n\n\ndemocracy\n\n\nplotly\n\n\n\n\n\n\n\n\n\n\n\nJul 20, 2024\n\n\nSergiu Lipcean\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "interactive/index.html#section",
     "href": "interactive/index.html#section",
     "title": "Interactive plots",
     "section": "",
-    "text": "party registration\n\n\nfreedom of association\n\n\ndemocracy\n\n\nplotly\n\n\n\n\n\n\n\n\n\n\n\nJul 20, 2024\n\n\nSergiu Lipcean\n\n\n\n\n\n\nNo matching items"
+    "text": "referendum\n\n\neuropean union\n\n\nconstitutional amendment\n\n\ndemocracy\n\n\nplotly\n\n\n\n\n\n\n\n\n\n\n\nNov 7, 2024\n\n\nSergiu Lipcean\n\n\n\n\n\n\n  \n\n\n\n\n\n\n\n\n\n\nparty registration\n\n\nfreedom of association\n\n\ndemocracy\n\n\nplotly\n\n\n\n\n\n\n\n\n\n\n\nJul 20, 2024\n\n\nSergiu Lipcean\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "interactive/index.html#section-1",
@@ -292,5 +292,12 @@
     "title": "Party registration requirements across post-communist regimes 1991-2020",
     "section": "",
     "text": "Note: The plot depicts the relationship between the size of electoral market measured as the number of registered voters, the number of voters’ signatures required to register a new political party and the territorial distribution of new party members across administrative-territorial units within each country. The size of the bubbles, represents the percentage of voters from which to recruit a single member and reflects, the effort required by newly aspiring political organisations to recruit potential members from the voters’ pool. The larger the bubbles, the more burdensome are party registration provisions, thus demanding more efforts on behalf of new political parties. Additionally, the higher the number of signatures for the “Territorial distribution” axis, the more difficult for new parties to register. Use the mouse to rotate/spin, zoom in and out, and hover over the plot for more details. Data source: Own data collected from party laws and regulations of the respective countries over three decades."
+  },
+  {
+    "objectID": "interactive/2024/2024-11-07-moldova-eu-referendum/index.html",
+    "href": "interactive/2024/2024-11-07-moldova-eu-referendum/index.html",
+    "title": "Moldova PRO-EU Referendum",
+    "section": "",
+    "text": "Note: The plot displays the percentage difference at the district (rayon) level between votes cast PRO and AGAINST amending the constitution for joining the European Union (Referendum was held on 20 October 2024). Use the mouse to hover over the plot for results in each district. Referendum question: Do you support the amendment of the Constitution in order for the Republic of Moldova to join the European Union?"
   }
 ]
