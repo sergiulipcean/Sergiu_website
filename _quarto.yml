@@ -12,7 +12,7 @@ website:
     left:
       - href: index.qmd
         text: About
-      - curriculum_vitae.qmd
+      - href: cv/index.qmd
       - publications.qmd
       - href: blogposts/index.qmd
       - href: interactive/index.qmd
