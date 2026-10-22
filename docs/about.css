@@ -1,0 +1,7 @@
+/* About page only: readable body text (loaded via index.qmd) */
+body {
+  font-family: "Trebuchet MS", sans-serif;
+  font-size: 14pt;
+  line-height: 1.5;
+  text-align: left;
+}

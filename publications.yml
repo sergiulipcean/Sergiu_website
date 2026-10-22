@@ -1,0 +1,159 @@
+# Publication list for publications.qmd
+# To add an entry: copy a block below, change the fields, save and re-render.
+# type:   working | article | chapter | dataset | report
+# links:  buttons shown after the reference (label + url); use "DOI", "Link", "Data", "PDF"...
+# venue:  journal / book / publisher; markdown allowed (*italics*)
+# Newest year first is handled automatically; within a year the order below is kept.
+
+# ---- Peer-reviewed articles ----
+- type: article
+  year: 2026
+  authors: "Bunea, A., Lipcean, S. & Rauh, C."
+  title: "Responsive to What? Explaining the Information Quality of Public Comments on Bureaucratic Policymaking Using a Text-as-Data Approach."
+  venue: "*Governance*"
+  details: "*39*(2): e70122."
+  links:
+    - {label: "DOI", url: "https://onlinelibrary.wiley.com/doi/abs/10.1111/gove.70122"}
+
+- type: article
+  year: 2026
+  authors: "Bunea, A. & Lipcean, S."
+  title: "Does public participation in supranational policymaking enhance the European Commission’s legislative agenda-setting success?"
+  venue: "*Journal of European Public Policy*"
+  links:
+    - {label: "DOI", url: "https://doi.org/10.1080/13501763.2026.2623923"}
+
+- type: article
+  year: 2025
+  authors: "Bértoa, F.C., Horncastle, W. & Lipcean, S."
+  title: "Blessing or curse? A critical review of the paradoxical consequences of direct public funding for political parties."
+  venue: "*European Political Science Review*"
+  details: "1–21."
+  links:
+    - {label: "DOI", url: "https://doi.org/10.1017/S1755773925100258"}
+
+- type: article
+  year: 2024
+  authors: "Lipcean, S. & Casal Bértoa, F."
+  title: "Do political finance reforms really reduce corruption? A replication study."
+  venue: "*Research & Politics*"
+  details: "*11*(4)."
+  links:
+    - {label: "DOI", url: "https://doi.org/10.1177/20531680241310002"}
+
+- type: article
+  year: 2024
+  authors: "Lipcean, S. & McMenamin, I."
+  title: "Rethinking public funding of parties and corruption: Confronting theoretical complexity and challenging measurement."
+  venue: "*Governance*"
+  details: "*37*(2): 537–559."
+  links:
+    - {label: "DOI", url: "https://doi.org/10.1111/gove.12782"}
+
+- type: article
+  year: 2024
+  authors: "Bunea, A., Wüest, R. & Lipcean, S."
+  title: "Mapping the policy space of public stakeholder consultations: Evidence from the European Union."
+  venue: "*Journal of European Public Policy*"
+  links:
+    - {label: "DOI", url: "https://doi.org/10.1080/13501763.2024.2320836"}
+
+- type: article
+  year: 2023
+  authors: "Bunea, A. & Lipcean, S."
+  title: "Understanding patterns of stakeholder participation in public commenting on bureaucratic policymaking: Evidence from the European Union."
+  venue: "*Regulation & Governance*"
+  links:
+    - {label: "DOI", url: "https://onlinelibrary.wiley.com/doi/abs/10.1111/rego.12551"}
+
+- type: article
+  year: 2022
+  authors: "Lipcean, S."
+  title: "Direct public funding of political parties: Between proxy measures and hard data."
+  venue: "*Party Politics*"
+  details: "*28*(6): 1041–1057."
+  links:
+    - {label: "DOI", url: "https://doi.org/10.1177/13540688211037302"}
+
+# ---- Book chapters ----
+- type: chapter
+  year: 2024
+  authors: "Lipcean, S. & Casal Bértoa, F."
+  title: "Political Financing and Political Corruption."
+  venue: "In L. de Sousa & S. Coroado (eds.), *Elgar Encyclopedia of Corruption and Society*."
+  links:
+    - {label: "DOI", url: "https://doi.org/10.4337/9781803925806.ch59"}
+
+- type: chapter
+  year: 2024
+  authors: "Lipcean, S. & Prohnitchi, E."
+  title: "Against The Mainstream? The Impact of Party Regulation in Political Competition in Moldova."
+  venue: "In F. Casal Bértoa & L. Tsutskiridze (eds.), *Money Rules: Parties, Oligarchs and Funding Regulation in Post-Soviet Countries*. Routledge, Taylor & Francis Group."
+  links:
+    - {label: "DOI", url: "https://doi.org/10.4324/9781003272236-2"}
+
+- type: chapter
+  year: 2014
+  authors: "Lipcean, S. & Ștefan, L."
+  title: "Implementing Right to Information: A Case Study of Moldova."
+  venue: "In S. E. Trapnell (ed.), *Right to Information: Case Studies on Implementation*. Washington, DC: World Bank."
+  links:
+    - {label: "Link", url: "https://openknowledge.worldbank.org/entities/publication/64eb01fb-a69f-5832-81a4-30183fe7ec56"}
+
+# ---- Datasets ----
+- type: dataset
+  year: 2021
+  authors: "Lipcean, S."
+  title: "Dataset on direct public funding of political parties across post-communist regimes 1990-2020."
+  venue: "Harvard Dataverse."
+  links:
+    - {label: "Data", url: "https://doi.org/10.7910/DVN/TNHZML"}
+
+# ---- Policy briefs & reports ----
+- type: report
+  year: 2026
+  authors: "Lipcean, S."
+  title: "Campaign Financing in Moldova’s 2025 Parliamentary Elections."
+  venue: "In J. M. Dollbaum & A. Eaglestone (eds), *The Parliamentary Elections of 2025 II*. University of Fribourg/CH; Research Centre for East European Studies (FSO) at the University of Bremen; Center for Security Studies (CSS) at ETH Zurich; Center for Eastern European Studies (CEES) at the University of Zurich."
+  links:
+    - {label: "DOI", url: "https://doi.org/10.3929/ethz-c-000793910"}
+
+- type: report
+  year: 2022
+  authors: "Lipcean, S., Casal Bértoa, F. & Goguadze, N."
+  title: "Post-legislative scrutiny of election campaign finance legislation."
+  venue: "London: Westminster Foundation for Democracy."
+  links:
+    - {label: "Link", url: "https://www.wfd.org/what-we-do/resources/post-legislative-scrutiny-election-campaign-finance-legislation"}
+
+- type: report
+  year: 2020
+  authors: "Lipcean, S. & Turcan, R."
+  title: "Higher Education in Moldova at Crossroads or Throwing Good Money After Bad?"
+  venue: "Chisinau: Friedrich Ebert Stiftung."
+  links:
+    - {label: "Link", url: "https://moldova.fes.de/fileadmin/user_upload/2020/Publications/Studiu_invatamant_Superior_final_1_EN.pdf"}
+
+- type: report
+  year: 2020
+  authors: "Berbeca, V. & Lipcean, S."
+  title: "National Army: Between Group Interests and Strategic Development."
+  venue: "Chisinau: Institute of Public Policies. (in Romanian)"
+  links:
+    - {label: "Link", url: "https://ipp.md/wp-content/uploads/2020/06/Armata-Nationala-intre-interese-de-grup-si-dezvotare-strategica1.pdf"}
+
+- type: report
+  year: 2018
+  authors: "Lipcean, S."
+  title: "Drawing Electoral Districts Boundaries: Between Neutrality and Political Partisanship."
+  venue: "Chisinau: Friedrich Ebert Stiftung, IDIS ‘Viitorul’."
+  links:
+    - {label: "Link", url: "https://moldova.fes.de/fileadmin/user_upload/2018/publications/Policy_brief-Gerrymandering-eng.pdf"}
+
+- type: report
+  year: 2017
+  authors: "Lipcean, S."
+  title: "Problems and Challenges in the Financing of Parliamentary Elections in the Context of Changing the Electoral System."
+  venue: "Chisinau: IDIS ‘Viitorul’, Friedrich Ebert Stiftung."
+  links:
+    - {label: "Link", url: "https://moldova.fes.de/fileadmin/user_upload/2017/publications/Policy_brief-finantare_campanii-ENG.pdf"}

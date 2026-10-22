@@ -1,0 +1,391 @@
+---
+title: "Does spending more money win more votes? Moldova's 2025 elections"
+description: "This blog post asks a simple question: did the parties and candidates that spent more money in Moldova's 2025 parliamentary elections also get more votes? It shows how much spending goes with a given vote share, and what the chances of reaching the 5% threshold were at different spending levels. It is the third post based on my analysis in the Moldovan Analytical Digest."
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2026-05-23"
+categories: [campaign finance, campaign spending, electoral returns, elections, Moldova] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+linkcolor: "#0F4D92"
+urlcolor: "#0F4D92"
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1.5em;
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10, dev = "ragg_png")
+```
+
+```{r}
+# Download R packages
+library(tidyverse)
+library(openxlsx)
+library(brms)
+library(tidybayes)
+library(marginaleffects)
+library(betareg)
+library(ggrepel)
+library(scales)
+library(extrafont)
+
+# Make the Windows fonts available to the plots (Trebuchet MS, as in the text)
+loadfonts(device = "win", quiet = TRUE)
+```
+
+```{r}
+# Spending and vote shares: one row per electoral contestant (21 contestants)
+# Spending is converted from lei to thousand euro (MDL 19.5 per euro)
+# "Total" includes the value of volunteer work, "monetary" leaves it out
+d <- read.xlsx("spending_returns.xlsx") %>%
+  mutate(percentage_prop = percentage / 100,
+         total_k    = round(total_expenses / 19.5 / 1000, 2),
+         monetary_k = round((total_expenses - volunteer_value) / 19.5 / 1000, 2),
+         cleared    = percentage >= 5)
+
+# One data set per spending measure, with the same variable names, so that the models use the same formulas
+# log_spend = log of spending in thousand euro; x = log_spend centred and divided by its standard deviation
+data_models <- list(
+  "Total spending"    = d %>% mutate(log_spend = log(total_k)),
+  "Monetary spending" = d %>% mutate(log_spend = log(monetary_k))) %>%
+  map(~ mutate(.x, x = (log_spend - mean(log_spend)) / sd(log_spend)))
+
+# Mean and standard deviation of log spending (to move between the two scales) and the highest spending observed
+scale_tbl <- data_models %>%
+  map(~ summarise(.x, mu = mean(log_spend), sdv = sd(log_spend), max_spend = max(exp(log_spend)))) %>%
+  list_rbind(names_to = "measure")
+```
+
+```{r}
+#| cache: false
+
+# Bayesian beta regression with a quadratic term in standardised log spending
+# Weakly informative priors: Normal(0, 1) on standardised spending lets the data decide
+priors <- c(prior(normal(-4, 1.5), class = Intercept),
+            prior(normal(0, 1), class = b),
+            prior(gamma(2, 0.1), class = phi))
+
+# The fitted models are saved in the folder "fits", so they are only estimated the first time
+fit_total <- brm(
+  percentage_prop ~ x + I(x^2),
+  data = data_models[["Total spending"]], family = Beta(), prior = priors,
+  chains = 4, iter = 5000, warmup = 2500, seed = 123,
+  control = list(adapt_delta = 0.99, max_treedepth = 15),
+  backend = "cmdstanr", refresh = 0, silent = 2, file = "fits/bayes_total")
+
+fit_monetary <- brm(
+  percentage_prop ~ x + I(x^2),
+  data = data_models[["Monetary spending"]], family = Beta(), prior = priors,
+  chains = 4, iter = 5000, warmup = 2500, seed = 123,
+  control = list(adapt_delta = 0.99, max_treedepth = 15),
+  backend = "cmdstanr", refresh = 0, silent = 2, file = "fits/bayes_monetary")
+
+bayes_models <- list("Total spending|Bayesian"    = fit_total,
+                     "Monetary spending|Bayesian" = fit_monetary)
+
+# The same model estimated the simple way (one best-fit curve), as in my digest analysis, used as a check
+freq_models <- list(
+  "Total spending|simple" =
+    betareg(percentage_prop ~ log_spend + I(log_spend^2) | log_spend, data = data_models[["Total spending"]]),
+  "Monetary spending|simple" =
+    betareg(percentage_prop ~ log_spend + I(log_spend^2) | log_spend, data = data_models[["Monetary spending"]]))
+```
+
+```{r}
+# Fix the random seed so that the numbers in the text are the same every time the page is rendered
+set.seed(123)
+
+# Grids of spending levels (log scale), plus a few values used in the text; we do not predict outside the observed range
+grid <- tibble(log_spend = sort(unique(c(seq(log(2), log(1500), length.out = 200),
+                                         log(c(50, 100, 200, 300, 500))))))
+
+grid_fine <- tibble(log_spend = seq(log(2), log(1500), length.out = 500))
+
+grid_measure <- scale_tbl %>%
+  cross_join(grid) %>%
+  mutate(x = (log_spend - mu) / sdv, spend = exp(log_spend)) %>%
+  filter(spend <= max_spend)
+
+grid_fine_measure <- scale_tbl %>%
+  cross_join(grid_fine) %>%
+  mutate(x = (log_spend - mu) / sdv, spend = exp(log_spend)) %>%
+  filter(spend <= max_spend)
+
+# Expected vote share for every spending level and every one of the thousands of possible curves
+epred <- bayes_models %>%
+  imap(~ add_epred_draws(filter(grid_measure, measure == str_extract(.y, "^[^|]+")) %>% select(-measure),
+                         .x, ndraws = 2000, dpar = "phi")) %>%
+  list_rbind(names_to = "model") %>%
+  separate_wider_delim(model, "|", names = c("measure", "approach")) %>%
+  mutate(measure = factor(measure, levels = c("Total spending", "Monetary spending")))
+
+# Chance of getting at least 5% of the votes at each spending level:
+# for every curve, the probability that a vote share drawn from the beta distribution is at least 5%, averaged over curves
+p_clear <- epred %>%
+  mutate(p = 1 - pbeta(0.05, .epred * phi, (1 - .epred) * phi)) %>%
+  summarise(p_clear = mean(p), .by = c(measure, spend))
+
+# Spending level beyond which the expected vote share stays above 5% (for every curve)
+crossing <- bayes_models %>%
+  imap(~ add_epred_draws(filter(grid_fine_measure, measure == str_extract(.y, "^[^|]+")) %>% select(-measure),
+                         .x, ndraws = 1000)) %>%
+  list_rbind(names_to = "model") %>%
+  separate_wider_delim(model, "|", names = c("measure", "approach")) %>%
+  filter(.epred < 0.05) %>%
+  mutate(measure = factor(measure, levels = c("Total spending", "Monetary spending"))) %>%
+  summarise(spend_5pct = max(spend), .by = c(measure, approach, .draw))
+
+crossing_summary <- crossing %>%
+  group_by(measure, approach) %>%
+  median_qi(spend_5pct) %>%
+  mutate(key = paste(measure, approach, sep = "|")) %>%
+  column_to_rownames("key")
+
+# Expected vote share at selected spending levels
+share_summary <- epred %>%
+  filter(round(spend, 6) %in% c(100, 300, 500)) %>%
+  mutate(spend = round(spend, 6)) %>%
+  group_by(measure, approach, spend) %>%
+  mutate(share = .epred * 100) %>%
+  median_qi(share) %>%
+  mutate(key = paste(measure, approach, spend, sep = "|")) %>%
+  column_to_rownames("key")
+
+# The same spending level from the simple model
+freq_crossing <- freq_models %>%
+  imap(~ filter(grid_fine_measure, measure == str_extract(.y, "^[^|]+")) %>%
+         mutate(estimate = predict(.x, newdata = pick(everything()), type = "response")) %>%
+         select(-measure)) %>%
+  list_rbind(names_to = "model") %>%
+  separate_wider_delim(model, "|", names = c("measure", "approach")) %>%
+  filter(estimate < 0.05) %>%
+  summarise(spend_5pct = max(spend), .by = c(measure, approach)) %>%
+  mutate(key = paste(measure, approach, sep = "|")) %>%
+  column_to_rownames("key")
+
+# Effect of doubling spending, at different starting levels (difference in expected vote share, percentage points)
+# On the standardised scale a doubling is a change of log(2) divided by the standard deviation of log spending
+effects <- bayes_models %>%
+  imap(~ comparisons(.x,
+                     variables = list(x = log(2) / scale_tbl$sdv[scale_tbl$measure == str_extract(.y, "^[^|]+")]),
+                     newdata = datagrid(model = .x,
+                                        x = (log(c(25, 50, 100, 200, 400)) - scale_tbl$mu[scale_tbl$measure == str_extract(.y, "^[^|]+")]) /
+                                          scale_tbl$sdv[scale_tbl$measure == str_extract(.y, "^[^|]+")]),
+                     type = "response") %>%
+         posterior_draws()) %>%
+  list_rbind(names_to = "model") %>%
+  separate_wider_delim(model, "|", names = c("measure", "approach")) %>%
+  left_join(scale_tbl, by = "measure") %>%
+  mutate(measure = factor(measure, levels = c("Total spending", "Monetary spending")),
+         start = round(exp(x * sdv + mu)),
+         change = draw * 100)
+
+effects_summary <- effects %>%
+  group_by(measure, start) %>%
+  median_qi(change) %>%
+  mutate(key = paste(measure, start, sep = "|")) %>%
+  column_to_rownames("key")
+
+# Convergence checks of the models
+rhat_max <- max(rhat(fit_total), rhat(fit_monetary))
+divergences <- sum(subset(nuts_params(fit_total), Parameter == "divergent__")$Value,
+                   subset(nuts_params(fit_monetary), Parameter == "divergent__")$Value)
+```
+
+This is the third post based on my analysis in the Moldovan Analytical Digest [@lipcean2026]. In the first two posts I looked at how the parties and candidates in Moldova's 2025 parliamentary elections raised money and how they spent it, so here I ask the obvious next question: **did those who spent more money also get more votes?**
+
+The short answer is yes, but mostly at the top of the spending ladder. Contestants with small budgets got very few votes whatever they spent, while those with big budgets got many more, and the more a contestant already spent, the more votes an extra euro seemed to buy. With only `r nrow(d)` contestants, though, nobody can say exactly how much money it takes to win a given number of votes.
+
+***What the data look like***
+
+@fig-data shows, for each contestant, how much it spent and what share of the votes it obtained. I measure spending in two ways: *monetary spending*, which counts only the money that was actually spent and *total spending*, which also includes the value of work performed by volunteers. @fig-data uses total spending. Because spending varies from less than €2,000 to more than €1.5 million, the x-axis uses a logarithmic scale, where each step to the right is a multiplication, not an addition, thus helping to show small and large spenders against their vote shares in the same picture. Each dot is one contestant, its height shows its vote share, and the dashed red line marks the 5% threshold needed to enter parliament, so the green dots above the line are the contestants that made it.
+
+Contestants that spent more generally got more votes, and the four biggest spenders all got more than 5%. But there is a lot of scatter: the Democracy at Home Party (PDA) passed the threshold with only about €12,500, while the Respect Moldova Movement (MRM) spent more than €300 thousand and got less than 1%.
+
+```{r}
+#| label: fig-data
+#| fig-cap: "Campaign spending and vote share of electoral contestants in Moldova's 2025 parliamentary elections. Spending includes the value of volunteer work and is shown on a logarithmic scale. The dashed line is the 5% threshold."
+#| fig-alt: "A scatter plot where each point is an electoral contestant, placed by total spending in thousand euro (logarithmic axis) and vote share. Contestants that got 5 percent or more are in a different colour; spending and vote share are positively related."
+#| fig-height: 4.5
+#| fig-width: 7
+
+d %>%
+  ggplot(aes(x = total_k, y = percentage_prop, colour = cleared)) +
+  geom_hline(yintercept = 0.05, linetype = 2, colour = "red3") +
+  geom_point(size = 4, alpha = 0.8) +
+  geom_text_repel(aes(label = party_acronym), colour = "grey30", size = 3.5, family = "Trebuchet MS") +
+  scale_x_log10(breaks = c(2, 5, 10, 25, 50, 100, 250, 500, 1000), labels = comma) +
+  scale_y_continuous(labels = percent) +
+  scale_colour_viridis_d(name = "", labels = c("Below 5%", "5% or more"), begin = 0.1, end = 0.7) +
+  labs(x = "Total spending: € thousand (log scale)", y = "Vote share") +
+  theme_light(base_family = "Trebuchet MS") +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linetype = 3),
+        legend.position = "top")
+```
+
+***How many votes does spending go with?***
+
+To see the overall pattern behind the dots, I fitted a statistical model to the data. Instead of drawing one single line through the dots, the model draws thousands of possible lines that are all reasonable given the data, and @fig-predictions shows them. The solid line is the middle one, and the shaded bands show where 50%, 80% and 95% of all those lines fall, so a narrow band means that we are fairly sure about the vote share at that spending level, and a wide band means that we are not. The figure has two panels, one for total spending and one for monetary spending, and the black dots are the contestants, as in @fig-data.
+
+The curve is flat at first and then bends sharply upwards. A contestant spending €100 thousand is expected to get about `r round(share_summary["Total spending|Bayesian|100", "share"], 1)`% of the votes (most likely between `r round(share_summary["Total spending|Bayesian|100", ".lower"], 1)`% and `r round(share_summary["Total spending|Bayesian|100", ".upper"], 1)`%), while with €500 thousand the expected share is about `r round(share_summary["Total spending|Bayesian|500", "share"], 1)`% (between `r round(share_summary["Total spending|Bayesian|500", ".lower"], 1)`% and `r round(share_summary["Total spending|Bayesian|500", ".upper"], 1)`%). The bands get wider as spending grows because only a few contestants have large budgets, so we are least sure just where the stakes are highest. When we count only money actually spent, the curve is steeper: €500 thousand of monetary spending goes with about `r round(share_summary["Monetary spending|Bayesian|500", "share"], 1)`% of the votes. The small rise at the far left of the curves is a quirk of the method and can be ignored.
+
+```{r}
+#| label: fig-predictions
+#| fig-cap: "Expected vote share by spending level in Moldova's 2025 parliamentary elections. The line is the middle estimate, the bands show where 50%, 80% and 95% of the possible curves fall. Points are the contestants; the dashed line is the 5% threshold. Curves stop at the highest spending observed for each measure."
+#| fig-alt: "Two panels, one for total spending and one for monetary spending, each with a rising curve of expected vote share against spending in thousand euro on a logarithmic axis, with blue bands that widen at high spending, and the contestants as points."
+#| fig-height: 4.5
+#| fig-width: 7.5
+
+points <- bind_rows("Total spending"    = d %>% transmute(party_acronym, spend = total_k, percentage_prop),
+                    "Monetary spending" = d %>% transmute(party_acronym, spend = monetary_k, percentage_prop),
+                    .id = "measure") %>%
+  mutate(measure = factor(measure, levels = c("Total spending", "Monetary spending")))
+
+epred %>%
+  ggplot(aes(x = spend, y = .epred)) +
+  stat_lineribbon(.width = c(0.5, 0.8, 0.95), colour = "grey20", linewidth = 0.6) +
+  geom_hline(yintercept = 0.05, linetype = 2, colour = "red3") +
+  geom_point(data = points, aes(y = percentage_prop), size = 2, colour = "grey30") +
+  scale_fill_brewer(palette = "Blues", name = "Share of possible curves",
+                    labels = c("95%", "80%", "50%"),
+                    guide = guide_legend(reverse = TRUE)) +
+  scale_x_log10(breaks = c(2, 5, 10, 25, 50, 100, 250, 500, 1000), labels = comma) +
+  scale_y_continuous(labels = percent, limits = c(0, 0.6), oob = scales::oob_keep) +
+  facet_wrap(~ measure, scales = "free_x") +
+  labs(x = "Spending level: € thousand (log scale)", y = "Expected vote share") +
+  coord_cartesian(ylim = c(0, 0.55)) +
+  theme_minimal(base_family = "Trebuchet MS") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(size = 11, face = "bold"),
+        panel.border = element_rect(colour = "grey50", fill = NA),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linetype = 3))
+```
+
+***Does each extra euro buy more votes?***
+
+The bend in the curve means that the more a contestant already spends, the more votes an extra euro seems to buy. To see this, imagine a contestant that doubles its spending and ask by how much its vote share would go up. @fig-effects answers this for five starting levels, from €25 thousand to €400 thousand, again for total and for monetary spending. Each blob shows the range of plausible increases in the vote share, measured in percentage points, and it reads like the bands before: the dot is the middle estimate, and the thick and thin lines around it contain 80% and 95% of the possible values. A blob close to the dashed zero line means that doubling the spending would change almost nothing, while a blob further to the right means a bigger gain.
+
+If a contestant starts at €25 thousand, doubling to €50 thousand goes with an increase of only about `r round(effects_summary["Total spending|25", "change"], 1)` percentage points in the vote share, whereas if it starts at €200 thousand, doubling to €400 thousand goes with about `r round(effects_summary["Total spending|200", "change"], 1)` percentage points. In other words, votes are not bought at a fixed price: extra spending barely moves the needle for small contestants and matters much more for big ones, which fits the idea that large budgets give access to expensive but effective tools, such as television advertising and professional campaigns, that small budgets cannot buy. Notice also that the blobs get wider as the starting level rises, meaning that for big spenders the model is much less sure about how large the gain would be.
+
+```{r}
+#| label: fig-effects
+#| fig-cap: "Change in expected vote share (percentage points) when spending doubles, starting from different spending levels in Moldova's 2025 parliamentary elections (dot: middle estimate; thick and thin lines: 80% and 95% plausible ranges)."
+#| fig-alt: "Two panels with distributions of the change in vote share, in percentage points, when spending doubles from five starting levels between 25 and 400 thousand euro. The effect and its uncertainty both grow with the starting level."
+#| fig-height: 4
+#| fig-width: 8
+
+effects %>%
+  mutate(start_label = fct_reorder(paste0("€", start, "k → €", start * 2, "k"), start)) %>%
+  ggplot(aes(x = change, y = fct_rev(start_label), fill = measure)) +
+  geom_vline(xintercept = 0, linetype = 2, colour = "grey50") +
+  stat_halfeye(.width = c(0.8, 0.95), point_interval = median_qi,
+               normalize = "xy", scale = 0.9) +
+  scale_fill_viridis_d(begin = 0.2, end = 0.7) +
+  facet_wrap(~ measure, scales = "free_x") +
+  guides(fill = "none") +
+  labs(x = "Change in expected vote share: percentage points", y = "Spending doubles from … to …") +
+  theme_minimal(base_family = "Trebuchet MS") +
+  theme(strip.text = element_text(size = 11, face = "bold"),
+        panel.border = element_rect(colour = "grey50", fill = NA),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linetype = 3))
+```
+
+***What were the chances of getting into parliament?***
+
+The curve in @fig-predictions is an average, but what a contestant actually gets also depends on things the model cannot see: how well organised it is, how well known, how good its candidates are, and plain luck. @fig-probability takes this into account and shows, for each spending level on the x-axis, the *chance* of getting at least 5% of the votes on the y-axis, so the higher the curve, the better the odds of entering parliament. As before, there is one panel for total spending and one for monetary spending.
+
+Spending a lot makes success likely, while spending little makes it unlikely but not impossible. With €100 thousand of total spending the chance is about `r percent(p_clear$p_clear[p_clear$measure == "Total spending" & round(p_clear$spend, 6) == 100], accuracy = 1)`, with €300 thousand it is `r percent(p_clear$p_clear[p_clear$measure == "Total spending" & round(p_clear$spend, 6) == 300], accuracy = 1)`, and with €500 thousand it is `r percent(p_clear$p_clear[p_clear$measure == "Total spending" & round(p_clear$spend, 6) == 500], accuracy = 1)`. Even for the smallest budgets the chance is around `r percent(min(p_clear$p_clear[p_clear$measure == "Total spending"]), accuracy = 1)`, which fits the case of PDA: unlikely, but it happened.
+
+```{r}
+#| label: fig-probability
+#| fig-cap: "Chance of getting at least 5% of the votes by spending level in Moldova's 2025 parliamentary elections. The curve is averaged over all the possible curves of the model."
+#| fig-alt: "Two panels with a rising curve of the chance of reaching 5 percent of the votes against spending in thousand euro on a logarithmic axis, one for total and one for monetary spending, starting around 10 percent and approaching 100 percent for high spending."
+#| fig-height: 4
+#| fig-width: 8
+
+p_clear %>%
+  ggplot(aes(x = spend, y = p_clear, colour = measure)) +
+  geom_line(linewidth = 1) +
+  geom_hline(yintercept = 0.5, linetype = 3, colour = "grey50") +
+  scale_colour_viridis_d(begin = 0.2, end = 0.7) +
+  scale_x_log10(breaks = c(2, 5, 10, 25, 50, 100, 250, 500, 1000), labels = comma) +
+  scale_y_continuous(labels = percent, limits = c(0, 1)) +
+  facet_wrap(~ measure, scales = "free_x") +
+  labs(x = "Spending level: € thousand (log scale)", y = "Chance of getting 5% or more") +
+  theme_minimal(base_family = "Trebuchet MS") +
+  theme(legend.position = "none",
+        strip.text = element_text(size = 11, face = "bold"),
+        panel.border = element_rect(colour = "grey50", fill = NA),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linetype = 3))
+```
+
+So how much does a contestant need to spend before it can *expect* to reach 5%? Each of the thousands of possible curves crosses the 5% line at a different spending level, and @fig-crossing shows how these spending levels are spread out. The higher the blob at a given spending level, the more of the possible curves cross the 5% line there. The black dot is the middle estimate, the thick and thin lines contain 80% and 95% of the possible values, and the dashed vertical line is what a simpler model with a single best-fit curve gives.
+
+The middle estimate is about €`r round(crossing_summary["Total spending|Bayesian", "spend_5pct"])` thousand of total spending, but it could plausibly be anywhere between €`r round(crossing_summary["Total spending|Bayesian", ".lower"])` thousand and €`r round(crossing_summary["Total spending|Bayesian", ".upper"])` thousand. For money actually spent, the middle estimate is about €`r round(crossing_summary["Monetary spending|Bayesian", "spend_5pct"])` thousand (between €`r round(crossing_summary["Monetary spending|Bayesian", ".lower"])` and €`r round(crossing_summary["Monetary spending|Bayesian", ".upper"])` thousand). The wide ranges are the real message: with `r nrow(d)` contestants we can say that getting into parliament takes a substantial budget, but not exactly how much. As a check, the simpler model gives a similar answer, about €`r round(freq_crossing["Total spending|simple", "spend_5pct"])` thousand for total spending and about €`r round(freq_crossing["Monetary spending|simple", "spend_5pct"])` thousand for monetary spending.
+
+```{r}
+#| label: fig-crossing
+#| fig-cap: "Spending level beyond which the expected vote share stays above 5%, in Moldova's 2025 parliamentary elections. The distribution is from the Bayesian model (dot: middle estimate; thick and thin lines: 80% and 95% plausible ranges). The dashed line is the same quantity from the simple model with one best-fit curve."
+#| fig-alt: "Two panels showing the distribution of the spending level in thousand euro at which the expected vote share reaches 5 percent, for total and monetary spending. The distributions are wide, with the simple model estimate as a vertical line inside them."
+#| fig-height: 4
+#| fig-width: 8
+
+freq_lines <- freq_crossing %>%
+  rownames_to_column("key") %>%
+  mutate(measure = factor(measure, levels = c("Total spending", "Monetary spending")))
+
+crossing %>%
+  ggplot(aes(x = spend_5pct, fill = measure)) +
+  stat_halfeye(.width = c(0.8, 0.95), point_interval = median_qi,
+               normalize = "xy", scale = 0.9, adjust = 1.5) +
+  geom_vline(data = freq_lines, aes(xintercept = spend_5pct, linetype = approach),
+             colour = "grey20") +
+  scale_fill_viridis_d(begin = 0.2, end = 0.7) +
+  scale_linetype_manual(values = c("simple" = 2),
+                        labels = c("simple" = "Simple model (one best-fit curve)"),
+                        name = "") +
+  scale_x_continuous(labels = comma, limits = c(0, 600), oob = scales::oob_keep) +
+  coord_cartesian(xlim = c(0, 600)) +
+  scale_y_continuous(breaks = NULL) +
+  facet_wrap(~ measure, scales = "free_x") +
+  guides(fill = "none") +
+  labs(x = "Spending level at which expected vote share reaches 5%: € thousand", y = NULL) +
+  theme_minimal(base_family = "Trebuchet MS") +
+  theme(legend.position = "bottom",
+        strip.text = element_text(size = 11, face = "bold"),
+        panel.border = element_rect(colour = "grey50", fill = NA),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linetype = 3))
+```
+
+***What this does not tell us***
+
+These numbers show how spending and votes go together in this election, but they do not prove that spending *causes* votes. A popular party can attract both money and votes, and with only `r nrow(d)` contestants I cannot take into account other things that matter a lot, such as being the party in government, party organisation, media coverage and name recognition. The figures also cover only officially declared spending, not illicit money, which by its nature is hard to measure.
+
+***Bottom line***
+
+In short, more spending went with more votes, but not in a straight line. Small budgets bought almost nothing, a contestant needed a substantial budget to have a realistic chance of reaching 5%, and for those who already had a lot of money, each extra euro seemed to count for more. But money was neither a guarantee nor strictly necessary, since some big spenders fell short and one small spender got into parliament.
+
+::: {.callout-note collapse="true"}
+## Technical note
+
+The model is a Bayesian beta regression (a standard method for percentages) fitted with the `brms` package [@burkner2017; see also @ferrari2004; @grun2012]. The vote share depends on spending through a curve (a quadratic term in standardised log spending), and I estimate it separately for total and monetary spending. I use weakly informative priors, Normal(0, 1) for the coefficients, and four chains of 5,000 iterations. The largest R-hat is `r round(rhat_max, 3)` and there were `r divergences` divergent transitions, so the estimation worked without problems. I chose this curved specification over a straight line, and over a version where the spread of vote shares changes with spending, because it predicted best or equally well for both measures when I left each contestant out in turn. Official data on spending and results come from the Central Electoral Commission [@cec2025financial; @cec2025results].
+:::
+
+::: {#references}
+:::
