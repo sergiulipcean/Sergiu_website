@@ -1,0 +1,244 @@
+---
+title: "How did Moldova's parties spend their campaign money? Spending patterns in the 2025 elections"
+description: "This blog post looks at the spending side of Moldova's 2025 parliamentary campaign. Using the official financial reports filed by electoral contestants, it shows how much each contestant spent, on what, and how differently well-funded and resource-poor contestants allocated their money. It is the second of a few posts based on my analysis in the Moldovan Analytical Digest."
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2026-04-16"
+categories: [campaign finance, campaign spending, advertising, volunteers, elections, Moldova] # self-defined categories
+draft: false # setting this to `true` will prevent your post from appearing on your listing page until you're ready!
+link-citations: true
+csl: apa.csl
+linkcolor: "#0F4D92"
+urlcolor: "#0F4D92"
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1.5em;
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10, dev = "ragg_png")
+```
+
+```{r}
+# Download R packages
+library(tidyverse)
+library(openxlsx)
+library(patchwork)
+library(ggrepel)
+library(scales)
+library(extrafont)
+
+# Make the Windows fonts available to the plots (Trebuchet MS, as in the text)
+loadfonts(device = "win", quiet = TRUE)
+```
+
+```{r}
+# Spending data: one row per contestant and spending category (amounts in MDL and EUR)
+# MM and BUN are left out, as in the previous post
+spending_data <- read.xlsx("spending_data_long.xlsx") %>%
+  filter(!Competitor_Acronym %in% c("MM", "BUN")) %>%
+  # tidy two category labels
+  mutate(spending_category_en = case_match(spending_category_en,
+                                           "Production/airing comercials" ~ "Broadcast advertisements",
+                                           "Premises: rent/maintenance" ~ "Premises",
+                                           .default = spending_category_en)) %>%
+  group_by(Competitor_Acronym) %>%
+  # total = net spending, stack = sum of the positive items
+  mutate(total_eur = sum(Amount_EUR),
+         total_mdl = sum(amount),
+         stack_eur = sum(Amount_EUR[Amount_EUR >= 0])) %>%
+  ungroup() %>%
+  mutate(Competitor_Acronym = fct_reorder(Competitor_Acronym, total_eur),
+         # keep the three largest categories and group the rest
+         category = fct_lump_n(spending_category_en, n = 3, w = pmax(Amount_EUR, 0),
+                               other_level = "All other categories"),
+         category = fct_relevel(category, "All other categories", "Promotional materials",
+                                "Broadcast advertisements", "Volunteer activities"))
+
+# One row per contestant with total spending
+spending_totals <- spending_data %>%
+  distinct(Competitor_Acronym, total_eur, total_mdl, stack_eur)
+
+# Share of each category in the spending of each contestant (rows = contestants)
+spending_share <- spending_data %>%
+  filter(Amount_EUR >= 0) %>%
+  mutate(share = Amount_EUR / sum(Amount_EUR), .by = Competitor_Acronym) %>%
+  select(Competitor_Acronym, spending_category_en, share) %>%
+  pivot_wider(names_from = spending_category_en, values_from = share) %>%
+  column_to_rownames("Competitor_Acronym")
+
+# Amounts in euro by contestant and category (rows = contestants)
+spending_eur <- spending_data %>%
+  select(Competitor_Acronym, spending_category_en, Amount_EUR) %>%
+  pivot_wider(names_from = spending_category_en, values_from = Amount_EUR) %>%
+  column_to_rownames("Competitor_Acronym")
+
+# Share of each category in the spending of all contestants
+category_share <- spending_data %>%
+  filter(Amount_EUR >= 0) %>%
+  summarise(eur = sum(Amount_EUR), .by = spending_category_en) %>%
+  mutate(share = eur / sum(eur)) %>%
+  select(spending_category_en, share) %>%
+  deframe()
+
+# Spending cap per contestant (MDL) set by the CEC for the 2025 and 2021 elections
+cap_2025 <- 75932486
+cap_2021 <- 20707700
+spending_totals <- spending_totals %>%
+  mutate(cap_share = total_mdl / cap_2025)
+
+# Six best-funded contestants versus all others: share of spending on broadcast advertisements
+top6 <- c("BEP", "PAS", "BEA", "PN", "MRM", "AM")
+broadcast_others <- spending_share[!rownames(spending_share) %in% top6, "Broadcast advertisements"]
+promo_top6 <- spending_share[top6, "Promotional materials"]
+```
+
+This is the second post based on my analysis in the Moldovan Analytical Digest [@lipcean2026]. The first post looked at how contestants raised money in Moldova's 2025 parliamentary elections. Here I look at the other side: how much they spent, what they spent it on, and whether contestants with a lot of money spent differently from those with little. As before, the analysis uses the official financial reports that contestants filed with the Central Electoral Commission (CEC) [@cec2025financial], and therefore covers only declared spending. The figures cover the same `r nrow(spending_totals)` contestants as in the previous post.
+
+***How much did contestants spend?***
+
+The law capped each contestant's spending at 0.1% of state budget revenues: MDL 75,932,486, or about €3.9 million [@cec2025cap]. That is roughly MDL 28 (€1.4) per registered voter. In the 2021 elections the cap was half as large as a share of the budget (0.05%, or MDL 20,707,700 [@cec2021cap]), so the 2025 cap was about `r round(cap_2025 / cap_2021, 1)` times higher in lei. In practice, nobody came close to it. The biggest spender, the Patriotic Electoral Bloc (BEP), used `r percent(max(spending_totals$cap_share), accuracy = 1)` of the cap, and the Party of Action and Solidarity (PAS), the party in government, `r percent(spending_totals$cap_share[spending_totals$Competitor_Acronym == "PAS"], accuracy = 1)`. Most contestants spent less than 2%.
+
+Together, contestants reported spending about `r dollar(sum(spending_totals$total_eur) / 1e6, prefix = "€", accuracy = 0.1, suffix = " million")`. For every contestant, reported spending matches reported income almost to the euro (the largest difference is about €10), so the ranking is the same as for income. The inequality in funding described in the previous post is therefore also an inequality in spending. The interesting question is how contestants used what they had.
+
+***Where did the money go?***
+
+Figure 1 breaks spending down into its categories. In panel A each bar is one contestant, ranked from the largest to the smallest spender, and its length shows how much it spent in thousand euro, with the number at the end of the bar giving the total. Panel B stretches every bar to 100%, so that we can compare how each contestant split its spending regardless of how much it spent. To keep the figure readable, I show the three largest categories separately and group all the others together. Three categories dominate: volunteer activities (`r percent(category_share[["Volunteer activities"]], accuracy = 1)` of all reported spending), broadcast advertisements (`r percent(category_share[["Broadcast advertisements"]], accuracy = 1)`) and promotional materials (`r percent(category_share[["Promotional materials"]], accuracy = 1)`). Together they make up `r percent(category_share[["Volunteer activities"]] + category_share[["Broadcast advertisements"]] + category_share[["Promotional materials"]], accuracy = 1)` of everything contestants spent. The remaining categories are small: in-kind goods and services account for `r percent(category_share[["In-kind: goods/services"]], accuracy = 1)`, transport for `r percent(category_share[["Transport"]], accuracy = 1)`, while premises, personnel and legal fees are each below 0.5%.
+
+```{r}
+#| label: fig-spending
+#| fig-cap: "Campaign spending of electoral contestants in Moldova's 2025 parliamentary elections, by spending category. Panel A shows absolute amounts (the label is the net total spending), panel B the share of each category. The three largest categories are shown separately, all others are grouped."
+#| fig-alt: "Two stacked bar charts of campaign spending by contestant. Panel A shows absolute amounts in thousand euro, with BEP and PAS above 1.2 million and most contestants below 100 thousand. Panel B shows the share of volunteer activities, broadcast advertisements, promotional materials and all other categories."
+#| fig-height: 4.5
+#| fig-width: 8
+
+# Panel A: absolute amounts
+absolute_sp <- spending_data %>%
+  filter(Amount_EUR >= 0) %>%
+  ggplot(aes(x = Competitor_Acronym,
+             y = Amount_EUR / 1000,
+             fill = fct_rev(category))) +
+  geom_col() +
+  geom_text(data = spending_totals,
+            aes(x = Competitor_Acronym,
+                y = stack_eur / 1000,
+                label = comma(total_eur / 1000, accuracy = 1)),
+            inherit.aes = FALSE, hjust = -0.1, size = 3, family = "Trebuchet MS") +
+  scale_y_continuous(breaks = seq(0, 1500, 300),
+                     labels = comma,
+                     expand = expansion(mult = c(0, 0.12))) +
+  scale_fill_viridis_d(name = "Spending categories", end = 0.9) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  coord_flip() +
+  theme_light(base_family = "Trebuchet MS") +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(linetype = 3),
+    legend.background = element_rect(fill = "transparent"),
+    plot.title = element_text(size = 12),
+    legend.key.height = unit(0.8, "lines"),
+    legend.key.width = unit(0.8, "lines"),
+    legend.position = "inside",
+    legend.position.inside = c(0.65, 0.25)
+  ) +
+  labs(title = "A: Absolute numbers", x = "", y = "€ thousand")
+
+# Panel B: share of each category in the spending of each contestant
+relative_sp <- spending_data %>%
+  filter(Amount_EUR >= 0) %>%
+  ggplot(aes(x = Competitor_Acronym,
+             y = Amount_EUR,
+             fill = fct_rev(category))) +
+  geom_col(position = position_fill()) +
+  scale_y_continuous(labels = percent) +
+  scale_fill_viridis_d(name = "Spending categories", end = 0.9) +
+  coord_flip() +
+  theme_light(base_family = "Trebuchet MS") +
+  theme(
+    axis.text.y = element_blank(),
+    plot.title = element_text(size = 12),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(linetype = 3),
+    legend.position = "none"
+  ) +
+  labs(title = "B: Percentage", x = "", y = "Percentage")
+
+# Combine both panels
+absolute_sp + relative_sp
+```
+
+::: {.callout-note collapse="true"}
+## Acronyms of electoral contestants
+
+```{r}
+read.xlsx("acronims.xlsx") %>%
+  rename(Acronym = party_acronym, `Electoral contestant` = party_name_en) %>%
+  knitr::kable()
+```
+:::
+
+***Volunteers***
+
+Volunteer work is the largest spending item, and it also appears on both sides of the campaign budget, as income (what supporters contribute) and as spending (the value of their work, as reported by the contestant). This is also the category where the gap between contestants is widest. For BEP, volunteer activities are `r percent(spending_share["BEP", "Volunteer activities"], accuracy = 1)` of reported spending, and for the Respect Moldova Movement (MRM) `r percent(spending_share["MRM", "Volunteer activities"], accuracy = 1)`. For PAS, the party in government, it is `r percent(spending_share["PAS", "Volunteer activities"], accuracy = 1)`. Most smaller contestants report little or no volunteer spending at all. Being able to field volunteers is itself a sign of a strong organisation.
+
+What do volunteers do? In the digest I used the detailed volunteer reports to show that about three quarters of volunteer activities, around 30,000 in all, were handing out campaign materials in direct contact with voters. More than 6,000 worked as representatives at polling stations, and the rest helped with media, logistics and other support [@lipcean2026].
+
+***Broadcast advertisements and promotional materials***
+
+Broadcast advertisements are the second biggest item, and here the picture is the opposite. PAS spent `r dollar(spending_eur["PAS", "Broadcast advertisements"], prefix = "€", accuracy = 1)` on producing and airing commercials, `r percent(spending_share["PAS", "Broadcast advertisements"], accuracy = 1)` of its spending, more than any other contestant in euros. The other big spenders chose differently: BEP devoted only `r percent(spending_share["BEP", "Broadcast advertisements"], accuracy = 1)` of its spending to commercials, BEA `r percent(spending_share["BEA", "Broadcast advertisements"], accuracy = 1)` and PN `r percent(spending_share["PN", "Broadcast advertisements"], accuracy = 1)`. Among the smaller contestants, commercials were typically a *larger* share of the budget than for the big ones: outside the six best-funded contestants, the typical share spent on broadcast advertisements is `r percent(median(broadcast_others), accuracy = 1)`. Several of them spent more than two thirds of their entire budget on it. Paid advertising seems to be how contestants with little money and a weak organisation try to be seen, since it does not need a network of volunteers.
+
+Promotional materials, such as printed leaflets and posters, are the third category. They take between `r percent(min(promo_top6), accuracy = 1)` and `r percent(max(promo_top6), accuracy = 1)` of the spending of each of the six best-funded contestants, so they look like a standard expense for contestants with an established organisation.
+
+Figure 2 shows the two main strategies side by side. Each point is a contestant, placed by the share of its spending that went to volunteer activities (horizontal axis) and to broadcast advertisements (vertical axis), while the size and colour of the point show how much it spent in total, so the big, light-coloured points are the big spenders. Contestants spread along a diagonal, from campaigns based almost only on advertisements (upper left) to campaigns based mostly on volunteers (lower right). The big spenders are in different places: BEP and MRM rely mostly on volunteers, PAS and PN are in the middle, and most small contestants are at the top left.
+
+```{r}
+#| label: fig-strategies
+#| fig-cap: "Campaign spending strategies of electoral contestants in Moldova's 2025 parliamentary elections: share of spending on volunteer activities and on broadcast advertisements. The size of the point shows total spending."
+#| fig-alt: "A scatter plot where each point is a contestant. The horizontal axis shows the share of spending on volunteer activities, the vertical axis the share on broadcast advertisements. Point size shows total spending. BEP is at the far right, many small contestants are in the upper left."
+#| fig-height: 4
+#| fig-width: 7
+
+spending_share %>%
+  rownames_to_column("Competitor_Acronym") %>%
+  left_join(spending_totals, by = "Competitor_Acronym") %>%
+  ggplot(aes(x = `Volunteer activities`,
+             y = `Broadcast advertisements`,
+             size = total_eur / 1000,
+             colour = total_eur / 1000)) +
+  geom_point(alpha = 0.8) +
+  geom_text_repel(aes(label = Competitor_Acronym), colour = "grey30", size = 3, family = "Trebuchet MS") +
+  scale_x_continuous(labels = percent) +
+  scale_y_continuous(labels = percent) +
+  scale_size_continuous(name = "Total spending\n€ thousand",
+                        breaks = c(50, 250, 500, 1000, 1500),
+                        labels = comma,
+                        range = c(2, 10)) +
+  scale_colour_viridis_c(name = "Total spending\n€ thousand",
+                         breaks = c(50, 250, 500, 1000, 1500),
+                         labels = comma,
+                         end = 0.9) +
+  guides(size = guide_legend(), colour = guide_legend()) + # merge both legends
+  labs(x = "Share of spending on volunteer activities",
+       y = "Share of spending on broadcast advertisements") +
+  theme_light(base_family = "Trebuchet MS") +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linetype = 3))
+```
+
+***What this means for competition***
+
+Spending mirrors income: a few contestants had a lot of money and the rest had little. The big spenders could choose how to combine volunteers, media and organisation, and each chose a different mix. Contestants with little money had a much narrower choice. Without a large organisation they could not make up for the lack of money with volunteers, so they put most of their money into paid commercials to be seen. Even the biggest spender stayed far below the legal spending cap, so the cap did little to limit the campaign.
+
+Did this spending bring votes? That is the question for the next post.
+
+::: {#references}
+:::

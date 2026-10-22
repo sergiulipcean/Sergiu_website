@@ -1,0 +1,272 @@
+---
+title: "Who funded Moldova's 2025 parliamentary campaign? Donations and income structure"
+description: "This blog post looks at the income side of Moldova's 2025 parliamentary campaign. Using the official financial reports filed by electoral contestants, it shows how much money each contestant raised, where it came from, and how broad was their donor pool. It is based on my analysis in the Moldovan Analytical Digest."
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2026-03-15"
+categories: [campaign finance, donations, volunteers, elections, Moldova] # self-defined categories
+draft: false # setting this to `true` will prevent the post from appearing on the listing page!
+link-citations: true
+csl: apa.csl
+linkcolor: "#1E3A5F"
+urlcolor: "#1E3A5F"
+bibliography: references.bib
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1.5em;
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10, dev = "ragg_png")
+```
+
+```{r}
+# Download R packages
+library(tidyverse)
+library(openxlsx)
+library(patchwork)
+library(ggrepel)
+library(scales)
+library(extrafont)
+
+# Make the Windows fonts available to the plots (Trebuchet MS, as in the text)
+loadfonts(device = "win", quiet = TRUE)
+```
+
+```{r}
+# Income data: one row per contestant and income category (amounts in MDL and EUR)
+# MM and BUN are left out, as in the figures of the digest
+income_data <- read.xlsx("income_data.xlsx") %>%
+  filter(!Competitor_Acronym %in% c("MM", "BUN")) %>%
+  mutate(Income_Label = str_replace(Income_Label, "businesess", "businesses")) %>%
+  group_by(Competitor_Acronym) %>%
+  # total = net income (one contestant reported negative own funds), stack = sum of the positive items
+  mutate(total_eur = sum(Amount_EUR),
+         stack_eur = sum(Amount_EUR[Amount_EUR >= 0])) %>%
+  ungroup() %>%
+  mutate(Competitor_Acronym = fct_reorder(Competitor_Acronym, total_eur))
+
+# One row per contestant with total income
+income_totals <- income_data %>%
+  distinct(Competitor_Acronym, total_eur, stack_eur)
+
+# Share of each income category in the income of each contestant (rows = contestants)
+income_share <- income_data %>%
+  filter(Amount_EUR >= 0) %>%
+  mutate(share = Amount_EUR / sum(Amount_EUR), .by = Competitor_Acronym) %>%
+  select(Competitor_Acronym, Income_Label, share) %>%
+  pivot_wider(names_from = Income_Label, values_from = share) %>%
+  column_to_rownames("Competitor_Acronym")
+
+# Share of each income category in the income of all contestants
+category_share <- income_data %>%
+  filter(Amount_EUR >= 0) %>%
+  summarise(eur = sum(Amount_EUR), .by = Income_Label) %>%
+  mutate(share = eur / sum(eur)) %>%
+  select(Income_Label, share) %>%
+  deframe()
+
+# Four best-funded contestants versus the rest
+top4 <- c("BEP", "PAS", "BEA", "PN")
+total_all <- sum(income_totals$total_eur)
+total_top4 <- income_totals %>% filter(Competitor_Acronym %in% top4) %>% pull(total_eur) %>% sum()
+
+# Donations from businesses: who received them?
+business <- income_data %>%
+  filter(Income_Label == "Donations: businesses", Amount_EUR > 0) %>%
+  arrange(desc(Amount_EUR))
+
+# Donor base: monetary donations and volunteer contributions (rows = contestants)
+summary_donations <- read.xlsx("summary_donations.xlsx") %>%
+  filter(party_acronym != "BUN")
+summary_volunteers <- read.xlsx("summary_volunteers.xlsx")
+
+don <- summary_donations %>% column_to_rownames("party_acronym")
+vol <- summary_volunteers %>% column_to_rownames("party_acronym")
+```
+
+The parliamentary elections of 28 September 2025 in Moldova were held under stricter campaign finance rules. The amendments passed in June 2025 [@monitorul2025] were a response to large-scale illegal financing and foreign interference around the 2024 presidential election and the EU accession referendum. In this post, the first of a few based on my analysis in the Moldovan Analytical Digest [@lipcean2026], I look at the *income side* of the parliamentary campaign: how much money the contestants raised, where it came from, how many contributions they received and how these were distributed among the donor pool.
+
+There is one caveat that should be mentioned. The analysis relies on the official financial reports that contestants filed with the Central Electoral Commission (CEC) through its online financial control platform [@cec2025financial]. It therefore says nothing about illicit or undeclared funding, which is by nature hard to measure. It can nevertheless reveal how legally declared resources are distributed among contestants, and that distribution is far from equal.
+
+***The rules of the game***
+
+During this campaign, individuals could contribute up to six average monthly wages (AMW; MDL 96,600, about €4,950), while legal entities up to twelve AMW (MDL 193,200, about €9,900).[^1] Cash donations were capped at one AMW (MDL 16,100, about €825), businesses could donate only by bank transfer, companies with outstanding debts to the state budget or social security and health insurance funds were barred from donating. Moreover, electoral competitors could not accept in-kind donations without advance payment [@monitorul2022]. Besides private money, contestants could move up to 70% of the state subsidies available in their party accounts into their election account.
+
+[^1]: Throughout this post, amounts in euro are converted from lei at about MDL 19.5 per euro.
+
+::: {.callout-note collapse="true"}
+## Acronyms of electoral contestants
+
+```{r}
+read.xlsx("acronims.xlsx") %>%
+  rename(Acronym = party_acronym, `Electoral contestant` = party_name_en) %>%
+  knitr::kable()
+```
+:::
+
+***Who raised the money?***
+
+Collectively, the `r nrow(income_totals)` electoral contestants collected about `r dollar(total_all / 1e6, prefix = "€", accuracy = 0.1, suffix = " million")` of reported income. Panel A of @fig-income shows that this money was extremely concentrated. The Patriotic Electoral Bloc (BEP) and the Party of Action and Solidarity (PAS) each raised more than €1.2 million, followed by the Alternative Bloc (BEA) and Our Party (PN). These four contestants alone account for `r dollar(total_top4 / 1e6, prefix = "€", accuracy = 0.01, suffix = " million")`, or `r percent(total_top4 / total_all, accuracy = 1)` of the total, while the remaining `r nrow(income_totals) - length(top4)` collected together `r dollar((total_all - total_top4) / 1e6, prefix = "€", accuracy = 0.01, suffix = " million")`. The best-funded bloc raised several hundred times more than the smallest contestants.
+
+@fig-income has two panels that show the structure of campaign income in absolute and relative terms. Panel A displays the ranking of electoral contestants from the largest to the smallest in terms of total income and its distribution by funding source, while Panel B displays the share of each income source from the total income.
+
+```{r}
+#| label: fig-income
+#| fig-cap: "Campaign income of electoral contestants in Moldova's 2025 parliamentary elections, by income source. Panel A shows absolute amounts (the label is the net total income), panel B the share of each source."
+#| fig-alt: "Two stacked bar charts of campaign income by contestant. Panel A shows absolute amounts in thousand euro, with BEP and PAS above 1.2 million and most contestants below 100 thousand. Panel B shows the share of each income source."
+#| fig-height: 4.5
+#| fig-width: 8
+
+# Panel A: absolute amounts
+absolute <- income_data %>%
+  filter(Amount_EUR >= 0) %>%
+  ggplot(aes(x = Competitor_Acronym,
+             y = Amount_EUR / 1000,
+             fill = fct_rev(Income_Label))) +
+  geom_col() +
+  geom_text(data = income_totals,
+            aes(x = Competitor_Acronym,
+                y = stack_eur / 1000,
+                label = comma(total_eur / 1000, accuracy = 1)),
+            inherit.aes = FALSE, hjust = -0.1, size = 3, family = "Trebuchet MS") +
+  scale_y_continuous(breaks = seq(0, 1500, 300),
+                     labels = comma,
+                     expand = expansion(mult = c(0, 0.12))) +
+  scale_fill_viridis_d(name = "Income sources", end = 0.9) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  coord_flip() +
+  theme_light(base_family = "Trebuchet MS") +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(linetype = 3),
+    legend.background = element_rect(fill = "transparent"),
+    plot.title = element_text(size = 12),
+    legend.key.height = unit(0.8, "lines"),
+    legend.key.width = unit(0.8, "lines"),
+    legend.position = "inside",
+    legend.position.inside = c(0.65, 0.25)
+  ) +
+  labs(title = "A: Absolute numbers", x = "", y = "€ thousand")
+
+# Panel B: share of each source in the income of each contestant
+relative <- income_data %>%
+  filter(Amount_EUR >= 0) %>%
+  ggplot(aes(x = Competitor_Acronym,
+             y = Amount_EUR,
+             fill = fct_rev(Income_Label))) +
+  geom_col(position = position_fill()) +
+  scale_y_continuous(labels = percent) +
+  scale_fill_viridis_d(name = "Income sources", end = 0.9) +
+  coord_flip() +
+  theme_light(base_family = "Trebuchet MS") +
+  theme(
+    axis.text.y = element_blank(),
+    plot.title = element_text(size = 12),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(linetype = 3),
+    legend.position = "none"
+  ) +
+  labs(title = "B: Percentage", x = "", y = "Percentage")
+
+# Combine both panels
+absolute + relative
+```
+
+***Where did the money come from?***
+
+Panel B of @fig-income shows that contestants also relied on very different sources of money. Volunteer work, valued by the contestants themselves, is the largest income source (`r percent(category_share[["Volunteer work"]], accuracy = 1)` of everything reported), followed by donations from individuals (`r percent(category_share[["Donations: individuals"]], accuracy = 1)`). Own funds, donations from businesses, in-kind donations and state subsidies that parties moved to their campaign accounts each make up much smaller shares.[^2]
+
+[^2]: The value of volunteer work is set by the contestant, using the AMW as a reference. It depends on the level of the electoral body the volunteer worked for: 50% for representatives at the Central Electoral Commission or in courts, 30% at second-level district councils, 20% at first-level district councils, and 10% at polling stations.
+
+Behind these totals are different strategies. For instance, PAS, the party in government, exhibits a relatively balanced income structure collecting funding from several sources: individual donations make up `r percent(income_share["PAS", "Donations: individuals"], accuracy = 1)` of its reported income, volunteer work `r percent(income_share["PAS", "Volunteer work"], accuracy = 1)`, its own funds `r percent(income_share["PAS", "Own private funds"], accuracy = 1)` and donations from businesses `r percent(income_share["PAS", "Donations: businesses"], accuracy = 1)`. BEP, by contrast, relied heavily on volunteers for `r percent(income_share["BEP", "Volunteer work"], accuracy = 1)` of its income and received no business donations at all. BEA and PN relied mostly on individual donors (`r percent(income_share["BEA", "Donations: individuals"], accuracy = 1)` and `r percent(income_share["PN", "Donations: individuals"], accuracy = 1)`), plus volunteer work. Most smaller contestants exhibit less balanced budgets, depending on one or two sources, which left them financially vulnerable.
+
+***The scarcity of business money***
+
+The shortage of business donations is reflected by the fact that only two contestants collected large amounts from businesses: PAS (`r dollar(business$Amount_EUR[business$Competitor_Acronym == "PAS"], prefix = "€", accuracy = 1)`) and the Moldovans Alliance (AM, `r dollar(business$Amount_EUR[business$Competitor_Acronym == "AM"], prefix = "€", accuracy = 1)`). For PAS this represents `r percent(income_share["PAS", "Donations: businesses"], accuracy = 1)` of its income, whereas for AM it constitutes `r percent(income_share["AM", "Donations: businesses"], accuracy = 1)`, so AM depended much more on business money. All other contestants collectively amassed only `r dollar(sum(business$Amount_EUR[!business$Competitor_Acronym %in% c("PAS", "AM")]), prefix = "€", accuracy = 1)` from businesses. Business money was therefore scarce, and went mostly to the party in government. A question still remains, whether some business contributions were disguised and reported as individual donations. Some journalists have raised this issue, for instance [here](https://tv8.md/2025/10/26/video-sponsorii-guvernarii-directori-de-firme-abonate-la-banii-publici-si-afaceristi-vizati-in-rapoarte-sis-au-donat-bani-pentru-pas/291275), and I touch upon it in the digest [@lipcean2026].
+
+***Donor pool and donation value***
+
+Totals do not show how contestants raised their money, so @fig-donors plots, for each contestant, the total amount raised (x-axis) against the number of contributions it received (y-axis) by the size of average donation. Both axes use a logarithmic scale to show both small and large values in the same plot. The size and colour of each point show the average contribution by electoral contestant. Panel A covers monetary donations, while panel B volunteer contributions. As panel A shows, PAS has by far the largest donor pool, `r comma(don["PAS", "n_contributors"])`, with an average of only €`r round(don["PAS", "avg_contribution_eur"])` – the lowest donation value among contestants. This reflects a grass-roots fundraising strategy, that is, raising money from many small donors. BEA (`r comma(don["BEA", "n_contributors"])` contributions, average €`r round(don["BEA", "avg_contribution_eur"])`) and PN (`r comma(don["PN", "n_contributors"])`, €`r round(don["PN", "avg_contribution_eur"])`) raised comparable amounts with larger average donations, while BEP collected only `r comma(don["BEP", "n_contributors"])` monetary contributions (average €`r round(don["BEP", "avg_contribution_eur"])`). At the other end, `r sum(summary_donations$n_contributors < 20)` of the `r nrow(summary_donations)` contestants reported fewer than 20 monetary contributions. Notably, while AM received only `r don["AM", "n_contributors"]` donations, it recorded the largest average donation per donor of €`r comma(round(don["AM", "avg_contribution_eur"]))`.
+
+Panel B shows even bigger gaps in volunteer work. BEP reported `r comma(vol["BEP", "n_contributors"])` volunteer contributions with a total value above €1 million, an average of only €`r round(vol["BEP", "avg_contribution_eur"])` each. PAS, the party in government, reported less than half as many (`r comma(vol["PAS", "n_contributors"])`), followed by PN (`r comma(vol["PN", "n_contributors"])`), MRM (`r comma(vol["MRM", "n_contributors"])`) and BEA (`r comma(vol["BEA", "n_contributors"])`). Most other contestants reported fewer than 100 contributions. Hence, the volunteer activity widens the gap between contestants instead of closing them: well-funded contestants with strong organisations mobilised thousands of supporters, while those with little money reached a very narrow pool of volunteers.
+
+```{r}
+#| label: fig-donors
+#| fig-cap: "Donor networks of electoral contestants in Moldova's 2025 parliamentary elections: total amount raised and number of contributions (both on log scales). The size and colour of each point show the average contribution in euro."
+#| fig-alt: "Two scatter plots with logarithmic axes. Each point is an electoral contestant, placed by total contributions in thousand euro and number of contributions. Panel A shows monetary contributions, panel B volunteer contributions."
+#| fig-height: 4.5
+#| fig-width: 8
+
+# Panel A: monetary contributions
+monetary_donations <- summary_donations %>%
+  ggplot(aes(x = total_funds_eur / 1000, y = n_contributors)) +
+  geom_point(aes(size = avg_contribution_eur, colour = avg_contribution_eur)) +
+  geom_text_repel(aes(label = party_acronym), colour = "grey30", size = 3, family = "Trebuchet MS") +
+  scale_x_log10(breaks = c(1, 5, 10, 30, 100, 300, 1500)) +
+  scale_y_log10(breaks = c(1, 10, 50, 200, 500, 1500)) +
+  scale_size_continuous(name = "Average \ncontribution €",
+                        breaks = seq(0, 3600, 600),
+                        labels = comma,
+                        range = c(2, 8)) +
+  scale_colour_viridis_c(name = "Average \ncontribution €",
+                         breaks = seq(0, 3600, 600),
+                         labels = comma,
+                         end = 0.9) +
+  guides(size = guide_legend(), colour = guide_legend()) + # merge both legends
+  labs(title = "A: Monetary contributions",
+       x = "Total contributions: € thousands",
+       y = "Number of contributions") +
+  theme_light(base_family = "Trebuchet MS") +
+  theme(legend.position = "top",
+        legend.margin = margin(b = -0.5, unit = "lines"),
+        legend.title = element_text(hjust = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linetype = 3))
+
+# Panel B: volunteer contributions
+voluntary_donations <- summary_volunteers %>%
+  ggplot(aes(x = total_funds_eur / 1000, y = n_contributors)) +
+  geom_point(aes(size = avg_contribution_eur, colour = avg_contribution_eur)) +
+  geom_text_repel(aes(label = party_acronym), colour = "grey30", size = 3, family = "Trebuchet MS") +
+  scale_x_log10(breaks = c(1, 10, 100, 300, 1000)) +
+  scale_y_log10(breaks = c(5, 50, 500, 2500, 10000, 20000)) +
+  scale_size_continuous(name = "Average \ncontribution €",
+                        breaks = seq(0, 500, 75),
+                        labels = comma,
+                        range = c(2, 8)) +
+  scale_colour_viridis_c(name = "Average \ncontribution €",
+                         breaks = seq(0, 500, 75),
+                         labels = comma,
+                         end = 0.9) +
+  guides(size = guide_legend(), colour = guide_legend()) +
+  labs(title = "B: Volunteer contributions",
+       x = "Total contributions: € thousands",
+       y = "Number of contributions") +
+  theme_light(base_family = "Trebuchet MS") +
+  theme(legend.position = "top",
+        legend.margin = margin(b = -0.5, unit = "lines"),
+        legend.title = element_text(hjust = 0.5),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linetype = 3))
+
+# Combine both panels
+monetary_donations + voluntary_donations
+```
+
+***What this means for competition***
+
+The playing field was very uneven. A small group of well-established contestants raised far more than everyone else, and they used several sources at the same time: individual donations, business money, their own funds and volunteers. Most of the others depended on one or two sources, usually small individual donations or a handful of volunteers. At the same time, the money was not concentrated in a single party. PAS, the party in government, was not the only one to raise large amounts: BEA, PN and BEP did too, and several contestants mobilised thousands of volunteers.
+
+Did this money turn into votes? I come back to this in a later post, after looking at how contestants spent their money.
+
+::: {#references}
+:::

@@ -1,9 +1,21 @@
 project:
   type: website
   output-dir: docs
+  render:
+    - "**/*.qmd"
+    - "!docs/"
+  # keep the custom-domain file when docs/ is rebuilt
+  resources:
+    - CNAME
 
 website:
   title: "Sergiu Lipcean"
+  site-url: https://sergiulipcean.eu
+  description: "Sergiu Lipcean is a political scientist at the University of Bergen working on party and campaign finance, political corruption and party competition in post-Soviet polities."
+  favicon: favicon.png
+  search: true
+  open-graph: true
+  twitter-card: true
 
   google-analytics: "G-HFVKNBVPZ6"
   cookie-consent: true
@@ -13,9 +25,13 @@ website:
       - href: index.qmd
         text: About
       - href: cv/index.qmd
-      - publications.qmd
+        text: CV
+      - href: publications.qmd
+        text: Publications
       - href: blogposts/index.qmd
+        text: Blog
       - href: interactive/index.qmd
+        text: Interactive plots
     
     right: 
       - icon: envelope
@@ -25,12 +41,16 @@ website:
         href: https://orcid.org/0000-0002-8944-6505
       - icon: linkedin
         href: https://www.linkedin.com/in/sergiulipcean/
-      - icon: twitter
-        href: https://twitter.com/sergiulipcean
+      - icon: bluesky
+        aria-label: bluesky
+        href: https://bsky.app/profile/sergiulipcean.bsky.social
+      - icon: twitter-x
+        aria-label: x
+        href: https://x.com/sergiulipcean
 
   page-footer: 
     background: "#2C3E50"
-    left: Copyright 2024, Sergiu Lipcean
+    left: Copyright © Sergiu Lipcean
     right: This website is built with [{{< fa brands r-project title="R Project" >}}](https://www.r-project.org/about.html){target=_blank}, [Quarto](https://quarto.org/){target=_blank} and [{{< fa brands github title="GitHub octocat logo" >}}](https://github.com/sergiulipcean/Sergiu_website){target=_blank} 
 
 format:
@@ -42,4 +62,3 @@ format:
     toc: true
 
 editor: visual
-logo: "sergiu_photo2.jpg"
