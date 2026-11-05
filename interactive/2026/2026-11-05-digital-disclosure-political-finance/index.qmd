@@ -1,0 +1,125 @@
+---
+title: "Digital Disclosure of Political Finance in Europe"
+author:
+  - name: Sergiu Lipcean
+    url: https://sergiulipcean.github.io/
+    orcid: 0000-0002-8944-6505
+date: "2026-11-05"
+categories: [campaign finance, transparency, political finance, plotly, europe]
+draft: false
+link-citations: true
+zotero: true
+linkcolor: "#0F4D92"
+urlcolor: "#0F4D92"
+format:
+  html:
+    page-layout: full
+---
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1.5em;
+  font-size: 14pt;
+  font-family: Trebuchet MS;
+  text-align: justify;}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 10)
+```
+
+```{r}
+# Download R packages
+library(tidyverse)
+library(plotly)
+library(sf)
+library(viridisLite)
+```
+
+```{r}
+#| label: data-management
+
+# Ready-to-plot data: country borders + one disclosure category per dimension
+dimensions <- c(campaign_expenditure = "Campaign expenditures",
+                annual_accounts      = "Annual accounts",
+                donations            = "Donations")
+
+# Colours follow the category order; countries without data are light grey
+type_colours <- c(viridis(8, option = "G", direction = -1, begin = 0.1), "#d9d9d9")
+
+disclosure_map_data <- readRDS("disclosure_map_combined.rds") %>%
+  mutate(across(all_of(names(dimensions)), ~ fct_na_value_to_level(.x, "No data")),
+         hover = paste0("<b>", name, "</b>",
+                        "<br>Campaign expenditures: ", campaign_expenditure,
+                        "<br>Annual accounts: ", annual_accounts,
+                        "<br>Donations: ", donations))
+```
+
+```{r}
+#| fig-height: 8
+#| fig-width: 12
+
+# One map layer (a trace per country) for each dimension
+add_dimension <- function(p, dimension) {
+  map_data_dim <- disclosure_map_data %>%
+    mutate(category = .data[[dimension]],
+           fill = type_colours[as.numeric(category)])
+  add_sf(p, data = map_data_dim,
+         color = ~I(fill),
+         split = ~paste(as.numeric(category), name), # keeps traces (and legend) in category order
+         name = ~as.character(category),
+         legendgroup = ~as.numeric(category),
+         text = ~hover, hoverinfo = "text", hoveron = "fills",
+         alpha = 0.92, line = list(color = "white", width = 1), # white borders between countries
+         visible = dimension == names(dimensions)[1])
+}
+
+disclosure_map <- reduce(names(dimensions), add_dimension, .init = plot_ly(height = 650))
+
+# Show each category only once in the legend, separately for each dimension
+n_countries <- nrow(disclosure_map_data)
+trace_names <- map_chr(plotly_build(disclosure_map)$x$data, ~ as.character(.x$name))
+repeated <- unlist(map(seq_along(dimensions), function(i) {
+  rows <- (i - 1) * n_countries + seq_len(n_countries)
+  rows[duplicated(trace_names[rows])]
+}))
+disclosure_map <- style(disclosure_map, showlegend = FALSE, traces = repeated)
+
+# Dropdown: show only the traces of the chosen dimension
+dropdown <- map(seq_along(dimensions), function(i) {
+  visible <- rep(seq_along(dimensions) == i, each = n_countries)
+  list(label = unname(dimensions[i]), method = "restyle", args = list(list(visible = visible)))
+})
+
+disclosure_map <- disclosure_map %>%
+  layout(
+    title = "",
+    # view window on Europe only: nothing is cut, other territories are just out of view
+    xaxis = list(range = c(-25, 52), visible = FALSE),
+    yaxis = list(range = c(34, 72), visible = FALSE, scaleanchor = "x", scaleratio = 1.7),
+    legend = list(title = list(text = "<b>Digital disclosure</b>"),
+                  x = -0.04, y = 0.6, # over the empty Atlantic on the left
+                  bgcolor = "rgba(255,255,255,0.8)"),
+    updatemenus = list(list(type = "dropdown", buttons = dropdown,
+                            x = 0.01, y = 0.98, xanchor = "left", yanchor = "top",
+                            bgcolor = "white")),
+    annotations = list(list(text = "<b>Show:</b>", x = -0.04, y = 0.99, xref = "paper", yref = "paper",
+                            xanchor = "left", yanchor = "top", showarrow = FALSE))
+  )
+
+# Use the height set in plot_ly() instead of the chunk figure size
+disclosure_map$sizingPolicy$knitr$figure <- FALSE
+
+disclosure_map
+```
+
+```{=html}
+<style type = text/css>
+  body{line-height: 1em;
+  font-size: 12pt;
+  font-family: Trebuchet MS;}
+</style>
+```
+
+<br> Note: Own elaboration based on Wolfs, W. (2023). The State of Digital Disclosure of Political Finance in Europe: Technical Paper. International IDEA. The map shows the type of digital disclosure of campaign expenditure, annual accounts of political parties and donations available across European countries. Categories range from no information online to fully searchable databases. Use the dropdown to switch between the three dimensions, and hover over a country to see its category in all three.

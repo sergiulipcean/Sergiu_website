@@ -90,6 +90,34 @@ ul.task-list li input[type="checkbox"] {
 <script>
 
   window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-interactive_2026 .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-interactive_2026'] = new List('listing-interactive_2026', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
     const listingTargetEl = window.document.querySelector('#listing-interactive_2024 .list');
     if (!listingTargetEl) {
       // No listing discovered, do not attach.
@@ -507,13 +535,14 @@ window.Quarto = {
     <h2 id="toc-title">Year</h2>
    
   <ul>
-  <li><a href="#section" id="toc-section" class="nav-link active" data-scroll-target="#section">2024</a></li>
-  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">2023</a></li>
-  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">2022</a></li>
-  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">2021</a></li>
+  <li><a href="#section" id="toc-section" class="nav-link active" data-scroll-target="#section">2026</a></li>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">2024</a></li>
+  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">2023</a></li>
+  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">2022</a></li>
+  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">2021</a></li>
   </ul>
 </nav>
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(8)</span></div><div class="category" data-category="YWJ1c2UlMjBvZiUyMHN0YXRlJTIwcmVzb3VyY2Vz">abuse of state resources <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y29uc3RpdHV0aW9uYWwlMjBhbWVuZG1lbnQ=">constitutional amendment <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVtb2NyYWN5">democracy <span class="quarto-category-count">(6)</span></div><div class="category" data-category="ZG9uYXRpb25z">donations <span class="quarto-category-count">(3)</span></div><div class="category" data-category="ZWxlY3Rpb25z">elections <span class="quarto-category-count">(3)</span></div><div class="category" data-category="ZWxlY3RvcmFsJTIwaW50ZWdyaXR5">electoral integrity <span class="quarto-category-count">(2)</span></div><div class="category" data-category="ZXVyb3BlYW4lMjB1bmlvbg==">european union <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZnJlZWRvbSUyMG9mJTIwYXNzb2NpYXRpb24=">freedom of association <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aW5jb21l">income <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cGFydHklMjByZWdpc3RyYXRpb24=">party registration <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cGxvdGx5">plotly <span class="quarto-category-count">(8)</span></div><div class="category" data-category="cG9zdC1jb21tdW5pc3QlMjByZWdpbWVz">post-communist regimes <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHVibGljJTIwZnVuZGluZyUyMGFjY2Vzcw==">public funding access <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHVibGljJTIwZnVuZGluZyUyMG9mJTIwcGFydGllcw==">public funding of parties <span class="quarto-category-count">(5)</span></div><div class="category" data-category="cmVmZXJlbmR1bQ==">referendum <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c3RhdGUlMjBjYXB0dXJl">state capture <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHJhbnNwYXJlbmN5">transparency <span class="quarto-category-count">(3)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(9)</span></div><div class="category" data-category="YWJ1c2UlMjBvZiUyMHN0YXRlJTIwcmVzb3VyY2Vz">abuse of state resources <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y2FtcGFpZ24lMjBmaW5hbmNl">campaign finance <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y29uc3RpdHV0aW9uYWwlMjBhbWVuZG1lbnQ=">constitutional amendment <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVtb2NyYWN5">democracy <span class="quarto-category-count">(6)</span></div><div class="category" data-category="ZG9uYXRpb25z">donations <span class="quarto-category-count">(3)</span></div><div class="category" data-category="ZWxlY3Rpb25z">elections <span class="quarto-category-count">(3)</span></div><div class="category" data-category="ZWxlY3RvcmFsJTIwaW50ZWdyaXR5">electoral integrity <span class="quarto-category-count">(2)</span></div><div class="category" data-category="ZXVyb3Bl">europe <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZXVyb3BlYW4lMjB1bmlvbg==">european union <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZnJlZWRvbSUyMG9mJTIwYXNzb2NpYXRpb24=">freedom of association <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aW5jb21l">income <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cGFydHklMjByZWdpc3RyYXRpb24=">party registration <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cGxvdGx5">plotly <span class="quarto-category-count">(9)</span></div><div class="category" data-category="cG9saXRpY2FsJTIwZmluYW5jZQ==">political finance <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cG9zdC1jb21tdW5pc3QlMjByZWdpbWVz">post-communist regimes <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHVibGljJTIwZnVuZGluZyUyMGFjY2Vzcw==">public funding access <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHVibGljJTIwZnVuZGluZyUyMG9mJTIwcGFydGllcw==">public funding of parties <span class="quarto-category-count">(5)</span></div><div class="category" data-category="cmVmZXJlbmR1bQ==">referendum <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c3RhdGUlMjBjYXB0dXJl">state capture <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHJhbnNwYXJlbmN5">transparency <span class="quarto-category-count">(4)</span></div></div></div>
 <!-- main -->
 <main class="content column-page-left" id="quarto-document-content">
 
@@ -538,7 +567,53 @@ window.Quarto = {
 
 
 <section id="section" class="level2">
-<h2 class="anchored" data-anchor-id="section">2024</h2>
+<h2 class="anchored" data-anchor-id="section">2026</h2>
+<div id="listing-interactive_2026" class="quarto-listing quarto-listing-container-default">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-categories="Y2FtcGFpZ24lMjBmaW5hbmNlJTJDdHJhbnNwYXJlbmN5JTJDcG9saXRpY2FsJTIwZmluYW5jZSUyQ3Bsb3RseSUyQ2V1cm9wZQ==" data-listing-date-sort="1793833200000" data-listing-file-modified-sort="1793880496870" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="831">
+<div class="thumbnail"><a href="../interactive/2026/2026-11-05-digital-disclosure-political-finance/index.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="../interactive/2026/2026-11-05-digital-disclosure-political-finance/index.html" class="no-external">Digital Disclosure of Political Finance in Europe</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('Y2FtcGFpZ24lMjBmaW5hbmNl'); return false;">campaign finance</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('dHJhbnNwYXJlbmN5'); return false;">transparency</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('cG9saXRpY2FsJTIwZmluYW5jZQ=='); return false;">political finance</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('cGxvdGx5'); return false;">plotly</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZXVyb3Bl'); return false;">europe</div>
+
+</div>
+<div class="delink listing-description"><a href="../interactive/2026/2026-11-05-digital-disclosure-political-finance/index.html" class="no-external">
+<br> Note: Own elaboration based on Wolfs, W. (2023). The State of Digital Disclosure of Political Finance in Europe: Technical Paper. International IDEA. The map shows the type…
+</a></div>
+</div>
+<div class="metadata">
+<a href="../interactive/2026/2026-11-05-digital-disclosure-political-finance/index.html" class="no-external">
+<div class="listing-date">
+Nov 5, 2026
+</div>
+<div class="listing-author">
+Sergiu Lipcean
+</div>
+</a>
+</div>
+</div>
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div>
+</section>
+<section id="section-1" class="level2">
+<h2 class="anchored" data-anchor-id="section-1">2024</h2>
 <div id="listing-interactive_2024" class="quarto-listing quarto-listing-container-default">
 <div class="list quarto-listing-default">
 <div class="quarto-post image-right" data-index="0" data-categories="cmVmZXJlbmR1bSUyQ2V1cm9wZWFuJTIwdW5pb24lMkNjb25zdGl0dXRpb25hbCUyMGFtZW5kbWVudCUyQ2RlbW9jcmFjeSUyQ3Bsb3RseQ==" data-listing-date-sort="1730934000000" data-listing-file-modified-sort="1731014647000" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="487">
@@ -619,8 +694,8 @@ Sergiu Lipcean
 <div class="listing-no-matching d-none">No matching items</div>
 </div>
 </section>
-<section id="section-1" class="level2">
-<h2 class="anchored" data-anchor-id="section-1">2023</h2>
+<section id="section-2" class="level2">
+<h2 class="anchored" data-anchor-id="section-2">2023</h2>
 <div id="listing-interactive_2023" class="quarto-listing quarto-listing-container-default">
 <div class="list quarto-listing-default">
 <div class="quarto-post image-right" data-index="0" data-categories="cHVibGljJTIwZnVuZGluZyUyMG9mJTIwcGFydGllcyUyQ3N0YXRlJTIwY2FwdHVyZSUyQ2RlbW9jcmFjeSUyQ3Bsb3RseQ==" data-listing-date-sort="1684447200000" data-listing-file-modified-sort="1711642603000" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1103">
@@ -703,8 +778,8 @@ Sergiu Lipcean
 <div class="listing-no-matching d-none">No matching items</div>
 </div>
 </section>
-<section id="section-2" class="level2">
-<h2 class="anchored" data-anchor-id="section-2">2022</h2>
+<section id="section-3" class="level2">
+<h2 class="anchored" data-anchor-id="section-3">2022</h2>
 <div id="listing-interactive_2022" class="quarto-listing quarto-listing-container-default">
 <div class="list quarto-listing-default">
 <div class="quarto-post image-right" data-index="0" data-categories="cHVibGljJTIwZnVuZGluZyUyMG9mJTIwcGFydGllcyUyQ3RyYW5zcGFyZW5jeSUyQ2RvbmF0aW9ucyUyQ2VsZWN0aW9ucyUyQ2RlbW9jcmFjeSUyQ2luY29tZSUyQ3Bsb3RseQ==" data-listing-date-sort="1666476000000" data-listing-file-modified-sort="1711642819000" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="504">
@@ -795,8 +870,8 @@ Sergiu Lipcean
 <div class="listing-no-matching d-none">No matching items</div>
 </div>
 </section>
-<section id="section-3" class="level2">
-<h2 class="anchored" data-anchor-id="section-3">2021</h2>
+<section id="section-4" class="level2">
+<h2 class="anchored" data-anchor-id="section-4">2021</h2>
 <div id="listing-interactive_2021" class="quarto-listing quarto-listing-container-default">
 <div class="list quarto-listing-default">
 <div class="quarto-post image-right" data-index="0" data-categories="cHVibGljJTIwZnVuZGluZyUyMG9mJTIwcGFydGllcyUyQ2RvbmF0aW9ucyUyQ2VsZWN0aW9ucyUyQ2VsZWN0b3JhbCUyMGludGVncml0eSUyQ3Bsb3RseQ==" data-listing-date-sort="1637622000000" data-listing-file-modified-sort="1711642906000" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="707">

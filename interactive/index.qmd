@@ -2,6 +2,9 @@
 title: "Interactive plots"
 author: ""
 listing:
+  - id: interactive_2026
+    contents: "2026/**/index.qmd"
+    sort: "date desc"
   - id: interactive_2024
     contents: "2024/**/index.qmd"
     sort: "date desc"
@@ -24,6 +27,11 @@ toc-location: right
 code-tools: false
 comments: false
 ---
+
+## 2026
+
+::: {#interactive_2026}
+:::
 
 ## 2024
 
