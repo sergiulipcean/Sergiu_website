@@ -122,4 +122,4 @@ disclosure_map
 </style>
 ```
 
-<br> Note: Own elaboration based on Wolfs, W. (2023). The State of Digital Disclosure of Political Finance in Europe: Technical Paper. International IDEA. The map shows the type of digital disclosure of campaign expenditure, annual accounts of political parties and donations available across European countries. Categories range from no information online to fully searchable databases. Use the dropdown to switch between the three dimensions, and hover over a country to see its category in all three.
+<br> Note: Own elaboration based on Wolfs, W. (2023). The State of Digital Disclosure of Political Finance in Europe: Technical Paper. International IDEA. The map shows the type of digital disclosure of campaign expenditures, annual accounts of political parties and donations available across European countries. Categories range from no information online to fully searchable databases. Use the dropdown to switch between the three dimensions, and hover over a country to see its category in all three.
